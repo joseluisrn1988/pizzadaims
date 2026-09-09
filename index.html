@@ -1,440 +1,1115 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Daim's Pizza | Asistente de Pedidos</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brandDark: '#0d0d0d',
-            brandCard: '#18181b',
-            brandRed: '#e11d48',
-            brandYellow: '#f59e0b',
-            chatBot: '#27272a',
-            chatUser: '#059669'
-          }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Daim's Pizza - Menú Digital</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* Estilos personalizados para mejorar la experiencia móvil y accesibilidad */
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0d0d0d;
+            color: #ffffff;
         }
-      }
-    }
-  </script>
-  <style>
-    body { background-color: #0d0d0d; color: #f4f4f5; font-family: system-ui, -apple-system, sans-serif; }
-    .chat-scroll::-webkit-scrollbar { width: 4px; }
-    .chat-scroll::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
-  </style>
+        .bg-primary { background-color: #0d0d0d; }
+        .bg-red-daims { background-color: #be2022; }
+        .text-red-daims { color: #be2022; }
+        .border-red-daims { border-color: #be2022; }
+        .bg-gray-light { background-color: #eaebed; }
+        .text-gray-dark { color: #0d0d0d; }
+
+        /* Scroll horizontal suave para las cintas */
+        .cinta-scroll {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #be2022 #eaebed;
+        }
+        .cinta-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .cinta-scroll::-webkit-scrollbar-thumb {
+            background-color: #be2022;
+            border-radius: 8px;
+        }
+        .cinta-scroll::-webkit-scrollbar-track {
+            background: #eaebed;
+        }
+
+        /* Tarjetas de producto */
+        .product-card {
+            background: #eaebed;
+            color: #0d0d0d;
+            border-radius: 1rem;
+            padding: 0.75rem;
+            min-width: 160px;
+            max-width: 180px;
+            flex: 0 0 auto;
+            transition: transform 0.1s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .product-card:active {
+            transform: scale(0.97);
+        }
+        .product-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.75rem;
+            background: #ddd;
+        }
+
+        /* Modal superpuesto */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            background: #ffffff;
+            color: #0d0d0d;
+            border-radius: 2rem 2rem 0 0;
+            padding: 1.5rem 1.25rem 2rem;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        /* Carrito flotante inferior */
+        .cart-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0d0d0d;
+            border-top: 2px solid #be2022;
+            padding: 0.6rem 1rem;
+            z-index: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+        .cart-bar .total {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Botón flotante de WhatsApp */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            background: #25D366;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Botón "Combinadas" */
+        .combinadas-float {
+            position: sticky;
+            bottom: 80px;
+            left: 0;
+            right: 0;
+            margin: 0 1rem 1rem;
+            background: #be2022;
+            color: white;
+            font-weight: bold;
+            padding: 0.8rem;
+            border-radius: 50px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(190,32,34,0.4);
+            z-index: 10;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        /* Ocultar scrollbar en navegación */
+        .nav-scroll {
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .nav-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Mejoras de accesibilidad: focus visible */
+        button:focus-visible, a:focus-visible {
+            outline: 3px solid #be2022;
+            outline-offset: 2px;
+        }
+
+        /* Transiciones */
+        .fade-enter {
+            transition: opacity 0.2s ease;
+        }
+
+        /* Tamaños de pizza en modal */
+        .size-option {
+            background: #f3f4f6;
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.4rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.1s;
+        }
+        .size-option.selected {
+            border-color: #be2022;
+            background: #fff0f0;
+        }
+        .size-option .price {
+            font-weight: bold;
+            color: #be2022;
+        }
+    </style>
 </head>
-<body class="flex justify-center min-h-screen bg-brandDark">
+<body>
 
-  <div class="w-full max-w-md flex flex-col h-screen border-x border-zinc-800 bg-brandDark shadow-2xl relative">
-    
-    <!-- Top Bar -->
-    <header class="bg-zinc-900/90 backdrop-blur px-4 py-3 border-b border-zinc-800 flex items-center justify-between sticky top-0 z-20">
-      <div class="flex items-center space-x-3">
-        <div class="relative">
-          <div class="w-10 h-10 rounded-full bg-brandRed flex items-center justify-center font-black text-white text-lg shadow-lg border border-red-400/30">
-            D
-          </div>
-          <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-zinc-900 rounded-full"></span>
-        </div>
-        <div>
-          <h1 class="font-bold text-sm text-white flex items-center gap-1">
-            DAIM'S PIZZA
-            <i class="fa-solid fa-circle-check text-xs text-brandYellow"></i>
-          </h1>
-          <p class="text-[11px] text-zinc-400">Asistente Virtual Automático</p>
-        </div>
-      </div>
-      <button onclick="transferirOperador('Duda general del cliente')" class="text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-300 px-2.5 py-1.5 rounded-lg border border-zinc-700 flex items-center gap-1.5 transition">
-        <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-        <span>Humano</span>
-      </button>
-    </header>
-
-    <!-- Chat Container -->
-    <main id="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4 chat-scroll pb-24">
-      <!-- Mensajes dinámicos aquí -->
-    </main>
-
-    <!-- Bottom Action Area -->
-    <footer class="p-3 bg-zinc-900/95 border-t border-zinc-800 sticky bottom-0 z-20">
-      <div id="interactiveArea" class="flex flex-col gap-2">
-        <!-- Opciones interactivas según el estado -->
-      </div>
-      <div class="mt-2 flex gap-2">
-        <input id="customInput" type="text" placeholder="Escribe una duda o pregunta..." class="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-brandRed" />
-        <button onclick="handleCustomText()" class="bg-brandRed hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition">
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </div>
-    </footer>
-
-  </div>
-
-  <script>
-    const CONFIG = {
-      phone: "524111884774",
-      bank: {
-        name: "Mercadopago",
-        holder: "Perla Jazmin Alvarez Olivares",
-        clabe: "722969014666918815"
-      }
-    };
-
-    // Catálogo de Pizzas del menú
-    const MENU_PIZZAS = [
-      { id: 'jamon', name: 'Jamón', desc: 'Jamón y queso', type: 'base' },
-      { id: 'tocino', name: 'Tocino', desc: 'Tocino y queso', type: 'base' },
-      { id: 'salchicha', name: 'Salchicha', desc: 'Salchicha y queso', type: 'base' },
-      { id: 'atun', name: 'Atún', desc: 'Atún y queso', type: 'base' },
-      { id: 'chorizo', name: 'Chorizo', desc: 'Chorizo y queso', type: 'base' },
-      { id: 'bistec', name: 'Bistec Adobado', desc: 'Bistec adobado y queso', type: 'base' },
-      { id: 'puntas', name: 'Puntas de Bistec', desc: 'Puntas de bistec y queso', type: 'base' },
-      { id: 'funghy', name: 'Funghy', desc: 'Champiñones y queso', type: 'base' },
-      { id: 'hawaiana', name: 'Hawaiana', desc: 'Jamón, piña y queso', type: 'base' },
-      { id: 'carnes_frias', name: 'Carnes Frías', desc: 'Salchicha, jamón, chorizo, peperoni, pimiento y queso', type: 'base' },
-      { id: 'mexicana', name: 'Mexicana', desc: 'Carne molida, chiles nachos, jitomate y cebolla en rodajas', type: 'base' },
-      { id: 'daims', name: "Pizza Daim's", desc: 'Salchicha, jamón, chorizo, peperoni, pimiento, tocino, piña, champiñones y queso', type: 'base' },
-      { id: 'azteca', name: 'Azteca', desc: 'Frijol, cebolla, chorizo, chile jalapeño y queso', type: 'base' },
-      { id: 'texana', name: 'Texana', desc: 'Salami, cebolla, chorizo, chile jalapeño y queso', type: 'base' },
-      { id: 'chicken_hawaiana', name: 'Chicken Hawaiana', desc: 'Pollo, tocino, piña, queso y salsa mango habanero', type: 'base' },
-      { id: '4_quesos', name: '4 Quesos', desc: 'Mozzarella, cheddar, parmesano y asadero', type: 'base' },
-      { id: 'stravaganza', name: 'Stravaganza', desc: 'Peperoni, carne molida, jamón, chorizo, pimiento, cebolla, champiñones, aceitunas y queso', type: 'base' },
-      { id: 'california_bbq', name: 'California BBQ', desc: 'Tocino, pollo, carne molida, queso y salsa BBQ', type: 'base' },
-      { id: 'camarones', name: 'Camarones', desc: 'Camarones preparados y queso', type: 'special' }
-    ];
-
-    const SIZES = {
-      base: [
-        { id: 'chica', label: 'Chica (8 reb. Triangulares)', price: 130 },
-        { id: 'mediana', label: 'Mediana (12 reb. Triangulares)', price: 230 },
-        { id: 'grande', label: 'Grande (18 reb. Cuadradas)', price: 330 },
-        { id: 'familiar', label: 'Familiar (32 reb. Cuadradas)', price: 490 },
-        { id: 'jumbo', label: 'Jumbo (40 reb. Cuadradas)', price: 590 }
-      ],
-      special: [
-        { id: 'chica', label: 'Chica (8 reb. Triangulares)', price: 140 },
-        { id: 'mediana', label: 'Mediana (12 reb. Triangulares)', price: 250 },
-        { id: 'grande', label: 'Grande (18 reb. Cuadradas)', price: 350 },
-        { id: 'familiar', label: 'Familiar (32 reb. Cuadradas)', price: 490 },
-        { id: 'jumbo', label: 'Jumbo (40 reb. Cuadradas)', price: 590 }
-      ]
-    };
-
-    let cart = [];
-    let orderDetails = {
-      deliveryType: null,
-      address: '',
-      notes: '',
-      paymentMethod: null,
-      cashChange: ''
-    };
-    let currentStep = 'WELCOME';
-    let tempSelectedPizza = null;
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initChat();
-    });
-
-    function appendBotMsg(html) {
-      const chat = document.getElementById('chatContainer');
-      const div = document.createElement('div');
-      div.className = 'flex items-start gap-2.5 animate-fade-in';
-      div.innerHTML = `
-        <div class="w-8 h-8 rounded-full bg-brandRed flex-shrink-0 flex items-center justify-center font-bold text-xs text-white">D</div>
-        <div class="bg-chatBot border border-zinc-700/60 text-zinc-100 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%] text-sm shadow-md">
-          ${html}
-        </div>
-      `;
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function appendUserMsg(text) {
-      const chat = document.getElementById('chatContainer');
-      const div = document.createElement('div');
-      div.className = 'flex items-end justify-end gap-2 animate-fade-in';
-      div.innerHTML = `
-        <div class="bg-chatUser text-white rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-[85%] text-sm shadow-md">
-          ${text}
-        </div>
-      `;
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    }
-
-    function setInteractiveUI(html) {
-      document.getElementById('interactiveArea').innerHTML = html;
-    }
-
-    function initChat() {
-      appendBotMsg("👋 ¡Hola! Bienvenido a <b>Daim's Pizza</b> 🍕.<br><br>Soy tu asistente virtual. ¿Qué te gustaría ordenar hoy?");
-      renderMainMenuOptions();
-    }
-
-    function renderMainMenuOptions() {
-      setInteractiveUI(`
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="startPizzaSelection()" class="bg-brandRed hover:bg-rose-700 text-white font-semibold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2">
-            🍕 Ver Menú de Pizzas
-          </button>
-          <button onclick="transferirOperador('Consulta sobre otros productos (Alitas, Bebidas, etc.)')" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-200 py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 border border-zinc-700">
-            🍗 Boneless / Bebidas
-          </button>
-        </div>
-      `);
-    }
-
-    function startPizzaSelection() {
-      appendUserMsg("Quiero ver las pizzas");
-      appendBotMsg("Selecciona la pizza que deseas agregar:");
-
-      let pizzaCards = `
-        <div class="max-h-60 overflow-y-auto space-y-2 pr-1 chat-scroll">
-      `;
-      MENU_PIZZAS.forEach(pizza => {
-        pizzaCards += `
-          <button onclick="selectPizza('${pizza.id}')" class="w-full text-left bg-zinc-800/90 hover:bg-zinc-700 p-2.5 rounded-xl border border-zinc-700 flex justify-between items-center transition">
-            <div>
-              <div class="font-bold text-xs text-white">${pizza.name}</div>
-              <div class="text-[10px] text-zinc-400 line-clamp-1">${pizza.desc}</div>
+    <!-- ======================== PANTALLA DE BIENVENIDA ======================== -->
+    <div id="welcome" class="min-h-screen flex flex-col items-center justify-center px-6 bg-primary text-white">
+        <div class="w-full max-w-md text-center">
+            <!-- Logo placeholder -->
+            <div class="mb-6">
+                <img src="https://via.placeholder.com/200x80?text=Daim%27s+Pizza" alt="Logo Daim's Pizza" class="mx-auto" />
             </div>
-            <i class="fa-solid fa-chevron-right text-xs text-brandYellow"></i>
-          </button>
-        `;
-      });
-      pizzaCards += `</div>`;
-
-      setInteractiveUI(pizzaCards);
-    }
-
-    function selectPizza(pizzaId) {
-      tempSelectedPizza = MENU_PIZZAS.find(p => p.id === pizzaId);
-      appendUserMsg(`Elegí Pizza ${tempSelectedPizza.name}`);
-      appendBotMsg(`¿En qué tamaño quieres tu <b>Pizza ${tempSelectedPizza.name}</b>?`);
-
-      const sizeList = tempSelectedPizza.type === 'special' ? SIZES.special : SIZES.base;
-      let sizeBtns = `<div class="grid grid-cols-1 gap-1.5 max-h-56 overflow-y-auto">`;
-      sizeList.forEach(s => {
-        sizeBtns += `
-          <button onclick="confirmPizzaItem('${s.id}', ${s.price}, '${s.label}')" class="bg-zinc-800 hover:bg-zinc-700 p-2.5 rounded-xl border border-zinc-700 flex justify-between items-center text-xs text-white">
-            <span>${s.label}</span>
-            <span class="font-bold text-brandYellow">$${s.price}</span>
-          </button>
-        `;
-      });
-      sizeBtns += `</div>`;
-
-      setInteractiveUI(sizeBtns);
-    }
-
-    function confirmPizzaItem(sizeId, price, sizeLabel) {
-      cart.push({
-        name: tempSelectedPizza.name,
-        sizeId: sizeId,
-        sizeLabel: sizeLabel,
-        price: price
-      });
-
-      appendUserMsg(`${sizeLabel} - $${price}`);
-      appendBotMsg(`✅ Agregado: <b>Pizza ${tempSelectedPizza.name}</b> (${sizeLabel}).<br>Llevas <b>$${getCartTotal()}</b> en tu orden.`);
-
-      setInteractiveUI(`
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="startPizzaSelection()" class="bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2.5 px-2 rounded-xl text-xs border border-zinc-700">
-            ➕ Agregar otra pizza
-          </button>
-          <button onclick="askDeliveryType()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-2 rounded-xl text-xs">
-            🛒 Finalizar Pedido
-          </button>
-        </div>
-      `);
-    }
-
-    function getCartTotal() {
-      return cart.reduce((acc, item) => acc + item.price, 0);
-    }
-
-    function askDeliveryType() {
-      appendUserMsg("Terminar mi pedido");
-      appendBotMsg("¿Cómo deseas recibir tu comida?");
-
-      setInteractiveUI(`
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="setDelivery('Recoger en Sucursal')" class="bg-zinc-800 hover:bg-zinc-700 text-white p-3 rounded-xl text-xs border border-zinc-700 flex flex-col items-center gap-1">
-            <i class="fa-solid fa-store text-base text-brandYellow"></i>
-            <span>Para Recoger</span>
-          </button>
-          <button onclick="setDelivery('Envío a Domicilio')" class="bg-zinc-800 hover:bg-zinc-700 text-white p-3 rounded-xl text-xs border border-zinc-700 flex flex-col items-center gap-1">
-            <i class="fa-solid fa-motorcycle text-base text-brandRed"></i>
-            <span>A Domicilio</span>
-          </button>
-        </div>
-      `);
-    }
-
-    function setDelivery(type) {
-      orderDetails.deliveryType = type;
-      appendUserMsg(type);
-
-      if (type === 'Envío a Domicilio') {
-        appendBotMsg("Por favor escribe tu <b>dirección completa</b> (Calle, Número, Colonia y Referencias):");
-        setInteractiveUI(`
-          <div class="space-y-2">
-            <textarea id="addressInput" rows="2" placeholder="Ej: Hidalgo #12, Col. Centro, fachada verde..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl p-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-brandRed"></textarea>
-            <button onclick="saveAddress()" class="w-full bg-brandRed hover:bg-red-700 text-white py-2 rounded-xl text-xs font-semibold">
-              Continuar
-            </button>
-          </div>
-        `);
-      } else {
-        askPaymentMethod();
-      }
-    }
-
-    function saveAddress() {
-      const addr = document.getElementById('addressInput').value.trim();
-      if (!addr) {
-        alert("Por favor ingresa tu dirección");
-        return;
-      }
-      orderDetails.address = addr;
-      appendUserMsg(`📍 ${addr}`);
-      appendBotMsg("ℹ️ <i>Nota: El costo de envío se calculará y confirmará en tu chat según tu ubicación exacta.</i>");
-      askPaymentMethod();
-    }
-
-    function askPaymentMethod() {
-      appendBotMsg("¿Cuál será tu forma de pago?");
-      setInteractiveUI(`
-        <div class="grid grid-cols-3 gap-1.5">
-          <button onclick="setPayment('Efectivo')" class="bg-zinc-800 hover:bg-zinc-700 text-white p-2.5 rounded-xl text-xs border border-zinc-700 flex flex-col items-center gap-1">
-            <i class="fa-solid fa-money-bill-wave text-emerald-400"></i>
-            <span>Efectivo</span>
-          </button>
-          <button onclick="setPayment('Tarjeta')" class="bg-zinc-800 hover:bg-zinc-700 text-white p-2.5 rounded-xl text-xs border border-zinc-700 flex flex-col items-center gap-1">
-            <i class="fa-solid fa-credit-card text-blue-400"></i>
-            <span>Tarjeta</span>
-          </button>
-          <button onclick="setPayment('Transferencia')" class="bg-zinc-800 hover:bg-zinc-700 text-white p-2.5 rounded-xl text-xs border border-zinc-700 flex flex-col items-center gap-1">
-            <i class="fa-solid fa-mobile-screen-button text-purple-400"></i>
-            <span>Transfer</span>
-          </button>
-        </div>
-      `);
-    }
-
-    function setPayment(method) {
-      orderDetails.paymentMethod = method;
-      appendUserMsg(`Pago con ${method}`);
-
-      if (method === 'Efectivo') {
-        appendBotMsg("¿Con cuánto pagarías para llevar tu cambio exacto?");
-        setInteractiveUI(`
-          <div class="space-y-2">
-            <div class="grid grid-cols-3 gap-1">
-              <button onclick="setCashChange('$200')" class="bg-zinc-800 border border-zinc-700 text-xs py-2 rounded-lg text-white">$200</button>
-              <button onclick="setCashChange('$500')" class="bg-zinc-800 border border-zinc-700 text-xs py-2 rounded-lg text-white">$500</button>
-              <button onclick="setCashChange('Monto Exacto')" class="bg-zinc-800 border border-zinc-700 text-xs py-2 rounded-lg text-white">Exacto</button>
+            <h1 class="text-3xl font-bold text-red-daims">Daim's Pizza</h1>
+            <p class="text-gray-300 mt-2 text-sm">Las mejores pizzas de la región</p>
+            <div class="mt-6 text-sm text-gray-400">
+                <i class="fas fa-clock mr-1"></i> Horario: Lunes a Domingo 14:00 - 23:00
             </div>
-            <input id="otherCashInput" type="text" placeholder="Otro monto (Ej: $1,000)" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-xs text-white" />
-            <button onclick="setCashChange(document.getElementById('otherCashInput').value)" class="w-full bg-brandRed text-white py-2 rounded-xl text-xs font-semibold">Guardar</button>
-          </div>
-        `);
-      } else if (method === 'Transferencia') {
-        appendBotMsg(`
-          💳 <b>Datos para Transferir:</b><br>
-          • <b>Banco:</b> ${CONFIG.bank.name}<br>
-          • <b>Titular:</b> ${CONFIG.bank.holder}<br>
-          • <b>CLABE:</b> <code class="bg-black/50 px-1 py-0.5 rounded text-brandYellow">${CONFIG.bank.clabe}</code><br><br>
-          <i>Al finalizar envíanos tu comprobante en el chat.</i>
-        `);
-        showOrderSummary();
-      } else {
-        showOrderSummary();
-      }
-    }
+            <div class="mt-8 space-y-4">
+                <a href="tel:4111184774" class="block w-full bg-red-daims hover:bg-red-700 text-white font-bold py-4 px-6 rounded-2xl text-lg transition flex items-center justify-center gap-3">
+                    <i class="fas fa-phone-alt text-xl"></i> Hacer pedido por llamada
+                </a>
+                <button id="btnMenu" class="block w-full bg-white text-primary font-bold py-4 px-6 rounded-2xl text-lg transition flex items-center justify-center gap-3 hover:bg-gray-200">
+                    <i class="fas fa-mobile-alt text-xl"></i> Hacer pedido desde pantalla
+                </button>
+            </div>
+            <!-- Botón flotante WhatsApp -->
+            <a href="https://wa.me/524111184774" target="_blank" class="whatsapp-float" aria-label="Chat por WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        </div>
+    </div>
 
-    function setCashChange(val) {
-      if (!val) val = "Monto exacto";
-      orderDetails.cashChange = val;
-      appendUserMsg(`Pagaré con: ${val}`);
-      showOrderSummary();
-    }
+    <!-- ======================== MENÚ PRINCIPAL ======================== -->
+    <div id="menu" class="hidden min-h-screen bg-primary text-white pb-28">
+        <!-- Barra de navegación fija -->
+        <nav class="sticky top-0 z-50 bg-primary border-b border-gray-800 py-2 px-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <img src="https://via.placeholder.com/40x30?text=D" alt="D" class="h-8" />
+                    <span class="font-bold text-red-daims text-lg">Daim's</span>
+                </div>
+                <div class="nav-scroll flex gap-3 text-sm font-medium">
+                    <button class="tab-btn active" data-categoria="pizzas"><i class="fas fa-pizza-slice mr-1"></i>Pizzas</button>
+                    <button class="tab-btn" data-categoria="snacks"><i class="fas fa-drumstick-bite mr-1"></i>Snacks</button>
+                    <button class="tab-btn" data-categoria="micheladas"><i class="fas fa-beer mr-1"></i>Micheladas</button>
+                    <button class="tab-btn" data-categoria="bebidas"><i class="fas fa-wine-bottle mr-1"></i>Bebidas</button>
+                </div>
+            </div>
+        </nav>
 
-    function showOrderSummary() {
-      let total = getCartTotal();
-      let summaryHtml = `
-        📋 <b>RESUMEN DE TU PEDIDO:</b><br><br>
-      `;
+        <!-- Contenido dinámico -->
+        <div id="menu-content" class="px-3 py-4">
+            <!-- Aquí se renderizan las categorías -->
+        </div>
 
-      cart.forEach(item => {
-        summaryHtml += `• 1x Pizza ${item.name} (${item.sizeLabel}) - $${item.price}<br>`;
-      });
+        <!-- Botón flotante de WhatsApp (en el menú también) -->
+        <a href="https://wa.me/524111184774" target="_blank" class="whatsapp-float" aria-label="Chat por WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
 
-      summaryHtml += `<br><b>Total en productos:</b> $${total}<br>`;
-      summaryHtml += `<b>Entrega:</b> ${orderDetails.deliveryType}<br>`;
-      if (orderDetails.address) {
-        summaryHtml += `<b>Dirección:</b> ${orderDetails.address}<br>`;
-        summaryHtml += `<b>Costo de envío:</b> A definir en WhatsApp<br>`;
-      }
-      summaryHtml += `<b>Forma de pago:</b> ${orderDetails.paymentMethod} ${orderDetails.cashChange ? `(${orderDetails.cashChange})` : ''}<br><br>`;
-      summaryHtml += `Presiona el botón para enviar tu pedido a nuestro WhatsApp oficial:`;
+    <!-- ======================== MODAL DE TAMAÑO DE PIZZA ======================== -->
+    <div id="modalSize" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold" id="modalPizzaName">Pizza</h3>
+                <button id="closeModalSize" class="text-2xl">&times;</button>
+            </div>
+            <p class="text-sm text-gray-600 mb-3" id="modalPizzaIngredients">Ingredientes</p>
+            <div id="modalSizeOptions" class="space-y-2">
+                <!-- Opciones de tamaño generadas por JS -->
+            </div>
+            <div class="mt-4 flex gap-3">
+                <button id="modalAddToCart" class="flex-1 bg-red-daims hover:bg-red-700 text-white font-bold py-3 rounded-xl transition">Agregar al carrito</button>
+                <button id="modalCancel" class="px-4 py-3 border border-gray-300 rounded-xl text-gray-700">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
-      appendBotMsg(summaryHtml);
+    <!-- ======================== MODAL DE COMBINADAS ======================== -->
+    <div id="modalCombinadas" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Armar Pizza Combinada</h3>
+                <button id="closeCombinadas" class="text-2xl">&times;</button>
+            </div>
+            <p class="text-sm text-gray-600 mb-3">Elige el tamaño y hasta 4 especialidades</p>
+            <!-- Tamaño -->
+            <div class="mb-3">
+                <label class="font-semibold block mb-1">Tamaño:</label>
+                <div id="combinadasSizeOptions" class="flex flex-wrap gap-2">
+                    <!-- generado -->
+                </div>
+            </div>
+            <!-- Selección de especialidades (máximo 4) -->
+            <div class="mb-3">
+                <label class="font-semibold block mb-1">Especialidades (2 a 4):</label>
+                <div id="combinadasSpecialties" class="grid grid-cols-2 gap-2">
+                    <!-- generado -->
+                </div>
+                <p id="combinadasCounter" class="text-sm text-gray-500 mt-1">Seleccionados: 0</p>
+                <p id="combinadasPriceNote" class="text-sm text-red-600 mt-1"></p>
+            </div>
+            <button id="combinadasAddToCart" class="w-full bg-red-daims hover:bg-red-700 text-white font-bold py-3 rounded-xl transition">Agregar combinada al carrito</button>
+        </div>
+    </div>
 
-      setInteractiveUI(`
-        <button onclick="sendOrderToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg">
-          <i class="fa-brands fa-whatsapp text-lg"></i>
-          <span>Enviar Pedido por WhatsApp</span>
-        </button>
-      `);
-    }
+    <!-- ======================== PANEL DE CARRITO (DASHBOARD) ======================== -->
+    <div id="cartPanel" class="fixed inset-0 z-[700] bg-black/70 flex items-end justify-center hidden">
+        <div class="bg-white w-full max-w-md max-h-[85vh] rounded-t-3xl p-5 text-primary overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Tu pedido</h2>
+                <button id="closeCartPanel" class="text-3xl">&times;</button>
+            </div>
+            <div id="cartItemsList" class="space-y-3">
+                <!-- items del carrito -->
+            </div>
+            <div class="border-t border-gray-200 pt-3 mt-3">
+                <div class="flex justify-between text-lg font-bold">
+                    <span>Total:</span>
+                    <span id="cartTotalDisplay">$0</span>
+                </div>
+                <button id="btnAddMore" class="w-full mt-3 bg-gray-200 hover:bg-gray-300 text-primary font-semibold py-3 rounded-xl transition">Agregar más productos al pedido</button>
+                <button id="btnCheckout" class="w-full mt-2 bg-red-daims hover:bg-red-700 text-white font-bold py-3 rounded-xl transition">Continuar con el pedido</button>
+            </div>
+        </div>
+    </div>
 
-    function sendOrderToWhatsApp() {
-      let total = getCartTotal();
-      let text = `🍕 *NUEVO PEDIDO - DAIM'S PIZZA*\n\n`;
-      text += `*DETALLE DEL PEDIDO:*\n`;
-      cart.forEach(item => {
-        text += `• 1x Pizza ${item.name} (${item.sizeLabel}) - $${item.price}\n`;
-      });
-      text += `\n*Total Productos:* $${total}\n`;
-      text += `*Tipo de Entrega:* ${orderDetails.deliveryType}\n`;
-      if (orderDetails.address) {
-        text += `*Dirección:* ${orderDetails.address}\n`;
-        text += `*Envío:* _(Pendiente de cotizar por operador)_\n`;
-      }
-      text += `*Forma de Pago:* ${orderDetails.paymentMethod} ${orderDetails.cashChange ? `(Paga con: ${orderDetails.cashChange})` : ''}\n\n`;
-      text += `¿Me confirman de recibido y el tiempo estimado por favor?`;
+    <!-- ======================== MODAL DE PAGO Y ENTREGA ======================== -->
+    <div id="modalCheckout" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Finalizar pedido</h3>
+                <button id="closeCheckout" class="text-2xl">&times;</button>
+            </div>
+            <!-- Tipo de entrega -->
+            <div class="mb-4">
+                <label class="font-semibold block mb-1">Tipo de entrega:</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2"><input type="radio" name="deliveryType" value="recoger" checked /> Para recoger</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="deliveryType" value="domicilio" /> A domicilio</label>
+                </div>
+                <div id="deliveryAddress" class="mt-2 hidden">
+                    <textarea placeholder="Calle, número, colonia, referencias" class="w-full border rounded-lg p-2 text-sm" rows="2"></textarea>
+                </div>
+            </div>
+            <!-- Método de pago -->
+            <div class="mb-4">
+                <label class="font-semibold block mb-1">Método de pago:</label>
+                <div class="flex flex-wrap gap-3">
+                    <label class="flex items-center gap-2"><input type="radio" name="paymentMethod" value="efectivo" checked /> Efectivo</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="paymentMethod" value="tarjeta" /> Tarjeta</label>
+                    <label class="flex items-center gap-2"><input type="radio" name="paymentMethod" value="transferencia" /> Transferencia</label>
+                </div>
+                <!-- Detalles para efectivo -->
+                <div id="cashDetails" class="mt-2">
+                    <label class="block text-sm">¿Con cuánto pagas? (opcional)</label>
+                    <input type="number" id="cashAmount" placeholder="Monto en pesos" class="w-full border rounded-lg p-2 text-sm" />
+                    <p class="text-xs text-gray-500 mt-1">Si no especificas, se asume monto exacto.</p>
+                </div>
+                <!-- Info tarjeta -->
+                <div id="cardInfo" class="mt-2 hidden text-sm text-gray-600">
+                    <p><i class="fas fa-info-circle text-red-daims"></i> El cobro se realiza al entregar.</p>
+                </div>
+                <!-- Info transferencia -->
+                <div id="transferInfo" class="mt-2 hidden bg-gray-100 p-3 rounded-lg text-sm space-y-2">
+                    <div><span class="font-semibold">Banco:</span> Mercadopago</div>
+                    <div><span class="font-semibold">Beneficiario:</span> Perla Jazmin Alvarez Olivares</div>
+                    <div class="flex items-center justify-between"><span class="font-semibold">Tarjeta:</span> <span id="clabeCard">XXXX-XXXX-XXXX-XXXX</span> <button class="copy-btn text-red-daims text-sm" data-clip="clabeCard">Copiar</button></div>
+                    <div class="flex items-center justify-between"><span class="font-semibold">CLABE:</span> <span id="clabeNumber">722969014666918815</span> <button class="copy-btn text-red-daims text-sm" data-clip="clabeNumber">Copiar</button></div>
+                </div>
+            </div>
+            <button id="btnConfirmOrder" class="w-full bg-red-daims hover:bg-red-700 text-white font-bold py-3 rounded-xl transition">Confirmar pedido</button>
+        </div>
+    </div>
 
-      const url = `https://wa.me/${CONFIG.phone}?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank');
-    }
+    <!-- ======================== CARRITO FLOTANTE INFERIOR ======================== -->
+    <div id="cartBar" class="cart-bar hidden">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-shopping-cart text-red-daims"></i>
+            <span id="cartCount">0</span>
+        </div>
+        <div class="total" id="cartTotal">$0</div>
+        <button id="btnOpenCartPanel" class="bg-red-daims hover:bg-red-700 text-white font-bold px-4 py-2 rounded-full text-sm transition">Continuar con pedido</button>
+    </div>
 
-    function handleCustomText() {
-      const input = document.getElementById('customInput');
-      const val = input.value.trim();
-      if (!val) return;
+    <script>
+        // ========================================================================
+        // APP_CONFIG
+        // ========================================================================
+        const APP_CONFIG = {
+            colors: {
+                primary: '#0d0d0d',
+                red: '#be2022',
+                grayLight: '#eaebed',
+                white: '#ffffff',
+            },
+            contact: {
+                phone: '4111184774',
+                whatsapp: '524111184774',
+            },
+            bank: {
+                name: 'Mercadopago',
+                beneficiary: 'Perla Jazmin Alvarez Olivares',
+                card: 'XXXX-XXXX-XXXX-XXXX',
+                clabe: '722969014666918815',
+            },
+            // El catálogo se construye abajo
+        };
 
-      appendUserMsg(val);
-      input.value = '';
+        // ========================================================================
+        // CATÁLOGO DE PRODUCTOS
+        // ========================================================================
+        const PRODUCTOS = [];
 
-      appendBotMsg("Entendido. Para darte una respuesta personalizada con un operador de Daim's Pizza, te transferiré al chat directo de WhatsApp...");
+        // Precios por tamaño (usamos la estructura de la segunda página)
+        const PRECIOS_BASE = {
+            chica: 130,
+            mediana: 230,
+            grande: 330,
+            extraFamiliar: 490,
+            mega: 590,
+            jumbo: 590, // asumimos mismo que mega
+        };
+        const TAMANIOS_DISPONIBLES = ['chica', 'mediana', 'grande', 'extraFamiliar', 'mega', 'jumbo'];
+        const TAMANIOS_LABEL = {
+            chica: 'Chica (8 rebanadas)',
+            mediana: 'Mediana (12 rebanadas)',
+            grande: 'Grande (18 rebanadas)',
+            extraFamiliar: 'Extra Familiar (32 rebanadas)',
+            mega: 'Mega (40 rebanadas)',
+            jumbo: 'Jumbo (40+ rebanadas)',
+        };
 
-      setTimeout(() => {
-        transferirOperador(val);
-      }, 1500);
-    }
+        // Función helper para crear pizzas con precios base
+        function crearPizza(id, nombre, ingredientes, categoria, imagen = 'https://via.placeholder.com/300x200?text=Pizza') {
+            return {
+                id,
+                categoria,
+                nombre,
+                ingredientes,
+                imagen,
+                precios: { ...PRECIOS_BASE },
+                tipo: 'pizza',
+            };
+        }
 
-    function transferirOperador(consulta) {
-      let msg = `Hola Daim's Pizza, tengo una consulta:\n"${consulta}"`;
-      const url = `https://wa.me/${CONFIG.phone}?text=${encodeURIComponent(msg)}`;
-      window.open(url, '_blank');
-    }
-  </script>
+        // Pizzas de la página 1
+        const pizzasPagina1 = [
+            { id: 'p1', nombre: 'Jamón', ingredientes: 'Jamón y queso' },
+            { id: 'p2', nombre: 'Tocino', ingredientes: 'Tocino y queso' },
+            { id: 'p3', nombre: 'Salchicha', ingredientes: 'Salchicha y queso' },
+            { id: 'p4', nombre: 'Atún', ingredientes: 'Atún y queso' },
+            { id: 'p5', nombre: 'Chorizo', ingredientes: 'Chorizo y queso' },
+            { id: 'p6', nombre: 'Camarones', ingredientes: 'Camarones y queso' },
+            { id: 'p7', nombre: 'Bistec Adobado', ingredientes: 'Bistec adobado y queso' },
+            { id: 'p8', nombre: 'Puntas de Bistec', ingredientes: 'Puntas de bistec y queso' },
+            { id: 'p9', nombre: 'Funghy', ingredientes: 'Champiñones y queso' },
+            { id: 'p10', nombre: 'Hawaiana', ingredientes: 'Jamón, piña y queso' },
+            { id: 'p11', nombre: 'Carnes Frias', ingredientes: 'Salchicha, jamón, chorizo, peperoni, pimiento y queso' },
+            { id: 'p12', nombre: 'Mexicana', ingredientes: 'Carne molida, chiles nachos, jitomate en rodaja, cebolla en rodaja' },
+            { id: 'p13', nombre: 'Pizza Daim\'s', ingredientes: 'Salchicha, jamón, chorizo, peperoni, pimiento, tocino, piña, champiñones y queso' },
+        ];
+
+        // Pizzas de la página 2
+        const pizzasPagina2 = [
+            { id: 'p14', nombre: 'Azteca', ingredientes: 'Frijol, cebolla, chorizo, chile jalapeño y queso' },
+            { id: 'p15', nombre: 'Texana', ingredientes: 'Salami, cebolla, chorizo, chile jalapeño y queso' },
+            { id: 'p16', nombre: 'Chiken Hawaiana', ingredientes: 'Pollo, tocino, piña, queso y salsa mango habanero' },
+            { id: 'p17', nombre: '4 Quesos', ingredientes: 'Queso mozarella, queso cheddar, queso parmesano y queso asadero' },
+            { id: 'p18', nombre: 'Stravaganza', ingredientes: 'Peperoni, carne molida, jamón, chorizo, pimiento, cebolla, champiñones, aceitunas y queso' },
+            { id: 'p19', nombre: 'California BBQ', ingredientes: 'Tocino, pollo, carne molida, queso y salsa BBQ' },
+        ];
+
+        // Asignar categorías según el enunciado
+        const clasicas = ['Jamón', 'Tocino', 'Salchicha', 'Atún', 'Chorizo', 'Camarones', 'Funghy', 'Puntas de Bistec'];
+        const especiales = ['Carnes Frias', 'Hawaiana', 'Mexicana', 'Azteca', 'Texana'];
+        const especialidades = ['Bistec Adobado', 'Pizza Daim\'s', '4 Quesos', 'Stravaganza', 'California BBQ', 'Chiken Hawaiana'];
+
+        // Agregar todas las pizzas al catálogo
+        [...pizzasPagina1, ...pizzasPagina2].forEach(p => {
+            let categoria = 'clasicas';
+            if (especiales.includes(p.nombre)) categoria = 'especiales';
+            if (especialidades.includes(p.nombre)) categoria = 'especialidades';
+            // Para clasicas: si no está en especiales ni especialidades, es clasica
+            if (!especiales.includes(p.nombre) && !especialidades.includes(p.nombre)) categoria = 'clasicas';
+            PRODUCTOS.push(crearPizza(p.id, p.nombre, p.ingredientes, categoria));
+        });
+
+        // ========================================================================
+        // OTROS PRODUCTOS (Snacks, Micheladas, Bebidas) - con precios fijos de ejemplo
+        // ========================================================================
+        const OTROS = [
+            { id: 's1', categoria: 'snacks', nombre: 'Alitas 1/2 kg BBQ', precio: 180, imagen: 'https://via.placeholder.com/300x200?text=Alitas' },
+            { id: 's2', categoria: 'snacks', nombre: 'Alitas 1 kg BBQ', precio: 320, imagen: 'https://via.placeholder.com/300x200?text=Alitas' },
+            { id: 's3', categoria: 'snacks', nombre: 'Alitas 1/2 kg Hunts', precio: 190, imagen: 'https://via.placeholder.com/300x200?text=Alitas' },
+            { id: 's4', categoria: 'snacks', nombre: 'Alitas 1 kg Hunts', precio: 340, imagen: 'https://via.placeholder.com/300x200?text=Alitas' },
+            { id: 's5', categoria: 'snacks', nombre: 'Boneless', precio: 150, imagen: 'https://via.placeholder.com/300x200?text=Boneless' },
+            { id: 's6', categoria: 'snacks', nombre: 'Papas', precio: 90, imagen: 'https://via.placeholder.com/300x200?text=Papas' },
+            { id: 'm1', categoria: 'micheladas', nombre: 'Michelada 1L', precio: 120, imagen: 'https://via.placeholder.com/300x200?text=Michelada' },
+            { id: 'b1', categoria: 'bebidas', nombre: 'Coctelería 1L', precio: 150, imagen: 'https://via.placeholder.com/300x200?text=Coctel' },
+            { id: 'b2', categoria: 'bebidas', nombre: 'Refresco 1L', precio: 40, imagen: 'https://via.placeholder.com/300x200?text=Refresco' },
+        ];
+
+        OTROS.forEach(item => {
+            PRODUCTOS.push({
+                ...item,
+                tipo: 'otro',
+                precios: null, // no aplica
+            });
+        });
+
+        // ========================================================================
+        // ESTADO DEL CARRITO
+        // ========================================================================
+        let carrito = []; // array de { productId, nombre, tamaño? (solo pizza), precioUnitario, cantidad, ingredientes? }
+        let carritoTotal = 0;
+        let carritoCount = 0;
+
+        // ========================================================================
+        // FUNCIONES DE UTILIDAD
+        // ========================================================================
+        function formatPrice(amount) {
+            return '$' + amount.toFixed(2);
+        }
+
+        function findProduct(id) {
+            return PRODUCTOS.find(p => p.id === id);
+        }
+
+        function actualizarCarritoUI() {
+            const countEl = document.getElementById('cartCount');
+            const totalEl = document.getElementById('cartTotal');
+            const bar = document.getElementById('cartBar');
+            if (carrito.length === 0) {
+                bar.classList.add('hidden');
+            } else {
+                bar.classList.remove('hidden');
+            }
+            const total = carrito.reduce((sum, item) => sum + item.precioUnitario * item.cantidad, 0);
+            const count = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+            carritoTotal = total;
+            carritoCount = count;
+            countEl.textContent = count;
+            totalEl.textContent = formatPrice(total);
+            // Actualizar en panel también
+            const panelTotal = document.getElementById('cartTotalDisplay');
+            if (panelTotal) panelTotal.textContent = formatPrice(total);
+            renderCartItems();
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cartItemsList');
+            if (!container) return;
+            if (carrito.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay productos en el carrito</p>';
+                return;
+            }
+            let html = '';
+            carrito.forEach((item, index) => {
+                const nombre = item.tamanio ? `${item.nombre} (${TAMANIOS_LABEL[item.tamanio]})` : item.nombre;
+                html += `
+                    <div class="flex items-center justify-between bg-gray-100 p-3 rounded-xl">
+                        <div>
+                            <div class="font-semibold">${nombre}</div>
+                            <div class="text-sm text-gray-600">${formatPrice(item.precioUnitario)} c/u</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="cart-qty-btn" data-index="${index}" data-action="decrement">−</button>
+                            <span class="w-6 text-center">${item.cantidad}</span>
+                            <button class="cart-qty-btn" data-index="${index}" data-action="increment">+</button>
+                            <button class="cart-remove-btn text-red-600 ml-1" data-index="${index}"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            // Eventos
+            container.querySelectorAll('.cart-qty-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const idx = parseInt(this.dataset.index);
+                    const action = this.dataset.action;
+                    if (action === 'increment') {
+                        carrito[idx].cantidad += 1;
+                    } else if (action === 'decrement') {
+                        if (carrito[idx].cantidad > 1) {
+                            carrito[idx].cantidad -= 1;
+                        } else {
+                            carrito.splice(idx, 1);
+                        }
+                    }
+                    actualizarCarritoUI();
+                });
+            });
+            container.querySelectorAll('.cart-remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = parseInt(this.dataset.index);
+                    carrito.splice(idx, 1);
+                    actualizarCarritoUI();
+                });
+            });
+        }
+
+        // ========================================================================
+        // AGREGAR AL CARRITO (desde modal de tamaño o combinadas)
+        // ========================================================================
+        function agregarAlCarrito(productId, tamanio, cantidad = 1) {
+            const product = findProduct(productId);
+            if (!product) return;
+            let precio = product.precios ? product.precios[tamanio] : product.precio;
+            if (!precio) {
+                console.warn('Precio no encontrado para', productId, tamanio);
+                return;
+            }
+            // Buscar si ya existe en el carrito con mismo id y tamaño
+            const existente = carrito.find(item => item.productId === productId && item.tamanio === tamanio);
+            if (existente) {
+                existente.cantidad += cantidad;
+            } else {
+                carrito.push({
+                    productId: productId,
+                    nombre: product.nombre,
+                    tamanio: tamanio,
+                    precioUnitario: precio,
+                    cantidad: cantidad,
+                    ingredientes: product.ingredientes || '',
+                });
+            }
+            actualizarCarritoUI();
+        }
+
+        // ========================================================================
+        // RENDERIZAR MENÚ POR CATEGORÍA
+        // ========================================================================
+        function renderCategoria(categoria) {
+            const container = document.getElementById('menu-content');
+            if (!container) return;
+            // Filtrar productos
+            let productosFiltrados;
+            if (categoria === 'pizzas') {
+                // Mostrar todas las pizzas en cintas
+                const clasicas = PRODUCTOS.filter(p => p.tipo === 'pizza' && p.categoria === 'clasicas');
+                const especiales = PRODUCTOS.filter(p => p.tipo === 'pizza' && p.categoria === 'especiales');
+                const especialidades = PRODUCTOS.filter(p => p.tipo === 'pizza' && p.categoria === 'especialidades');
+                let html = '';
+                // Cinta Clásicas
+                html += renderCinta('Pizzas Clásicas', clasicas);
+                // Cinta Especiales
+                html += renderCinta('Pizzas Especiales', especiales);
+                // Cinta Especialidades Daim's
+                html += renderCinta('Especialidades Daim\'s', especialidades);
+                // Botón Combinadas
+                html += `<button id="btnCombinadas" class="combinadas-float"><i class="fas fa-object-group mr-2"></i> Armar pizza combinada (2 a 4 especialidades)</button>`;
+                container.innerHTML = html;
+                // Evento para combinadas
+                document.getElementById('btnCombinadas')?.addEventListener('click', abrirModalCombinadas);
+                // Eventos en tarjetas
+                document.querySelectorAll('.product-card').forEach(card => {
+                    card.addEventListener('click', function() {
+                        const pid = this.dataset.productId;
+                        abrirModalTamanio(pid);
+                    });
+                });
+                return;
+            } else {
+                // Snacks, Micheladas, Bebidas
+                const otros = PRODUCTOS.filter(p => p.tipo === 'otro' && p.categoria === categoria);
+                let html = `<div class="grid grid-cols-2 gap-4">`;
+                otros.forEach(p => {
+                    html += `
+                        <div class="bg-gray-light text-primary rounded-xl overflow-hidden shadow-md cursor-pointer product-card-other" data-id="${p.id}">
+                            <img src="${p.imagen}" alt="${p.nombre}" class="w-full h-32 object-cover" />
+                            <div class="p-3">
+                                <div class="font-bold">${p.nombre}</div>
+                                <div class="text-red-daims font-bold">${formatPrice(p.precio)}</div>
+                                <button class="mt-2 w-full bg-red-daims hover:bg-red-700 text-white font-bold py-1 rounded-full text-sm transition add-other-btn" data-id="${p.id}">Agregar</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                container.innerHTML = html;
+                // Eventos
+                container.querySelectorAll('.add-other-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const pid = this.dataset.id;
+                        const product = findProduct(pid);
+                        if (product) {
+                            // Buscar si ya existe en carrito (sin tamaño)
+                            const existente = carrito.find(item => item.productId === pid && !item.tamanio);
+                            if (existente) {
+                                existente.cantidad += 1;
+                            } else {
+                                carrito.push({
+                                    productId: pid,
+                                    nombre: product.nombre,
+                                    tamanio: null,
+                                    precioUnitario: product.precio,
+                                    cantidad: 1,
+                                    ingredientes: '',
+                                });
+                            }
+                            actualizarCarritoUI();
+                        }
+                    });
+                });
+                return;
+            }
+        }
+
+        function renderCinta(titulo, productos) {
+            if (!productos.length) return '';
+            let html = `<div class="mb-6"><h3 class="text-lg font-bold text-red-daims mb-2">${titulo}</h3><div class="cinta-scroll gap-4 pb-2">`;
+            productos.forEach(p => {
+                html += `
+                    <div class="product-card" data-product-id="${p.id}">
+                        <img src="${p.imagen}" alt="${p.nombre}" class="mb-2" />
+                        <div class="font-bold text-sm">${p.nombre}</div>
+                        <div class="text-xs text-gray-600 line-clamp-2">${p.ingredientes}</div>
+                        <div class="mt-1 text-red-daims font-bold text-sm">Desde ${formatPrice(p.precios.chica)}</div>
+                        <button class="mt-1 w-full bg-red-daims hover:bg-red-700 text-white font-bold py-1 rounded-full text-xs transition">+ Agregar</button>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+            return html;
+        }
+
+        // ========================================================================
+        // MODAL DE TAMAÑO DE PIZZA
+        // ========================================================================
+        let modalPizzaId = null;
+
+        function abrirModalTamanio(productId) {
+            modalPizzaId = productId;
+            const product = findProduct(productId);
+            if (!product || product.tipo !== 'pizza') return;
+            document.getElementById('modalPizzaName').textContent = product.nombre;
+            document.getElementById('modalPizzaIngredients').textContent = product.ingredientes;
+            const optionsContainer = document.getElementById('modalSizeOptions');
+            let html = '';
+            TAMANIOS_DISPONIBLES.forEach(t => {
+                const precio = product.precios[t];
+                if (precio !== undefined) {
+                    const label = TAMANIOS_LABEL[t];
+                    html += `
+                        <div class="size-option" data-tamanio="${t}">
+                            <span>${label}</span>
+                            <span class="price">${formatPrice(precio)}</span>
+                        </div>
+                    `;
+                }
+            });
+            optionsContainer.innerHTML = html;
+            // Seleccionar primero por defecto
+            const first = optionsContainer.querySelector('.size-option');
+            if (first) first.classList.add('selected');
+            document.getElementById('modalSize').classList.add('active');
+        }
+
+        // Eventos del modal de tamaño
+        document.getElementById('modalSize').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+        document.getElementById('closeModalSize').addEventListener('click', () => {
+            document.getElementById('modalSize').classList.remove('active');
+        });
+        document.getElementById('modalCancel').addEventListener('click', () => {
+            document.getElementById('modalSize').classList.remove('active');
+        });
+        document.getElementById('modalSizeOptions').addEventListener('click', function(e) {
+            const option = e.target.closest('.size-option');
+            if (option) {
+                this.querySelectorAll('.size-option').forEach(el => el.classList.remove('selected'));
+                option.classList.add('selected');
+            }
+        });
+        document.getElementById('modalAddToCart').addEventListener('click', function() {
+            const selected = document.querySelector('#modalSizeOptions .size-option.selected');
+            if (!selected) return;
+            const tamanio = selected.dataset.tamanio;
+            if (modalPizzaId) {
+                agregarAlCarrito(modalPizzaId, tamanio);
+                document.getElementById('modalSize').classList.remove('active');
+            }
+        });
+
+        // ========================================================================
+        // MODAL DE COMBINADAS
+        // ========================================================================
+        let combinadasSeleccion = [];
+        let combinadasTamanio = null;
+
+        function abrirModalCombinadas() {
+            combinadasSeleccion = [];
+            combinadasTamanio = null;
+            document.getElementById('combinadasSpecialties').innerHTML = '';
+            document.getElementById('combinadasCounter').textContent = 'Seleccionados: 0';
+            document.getElementById('combinadasPriceNote').textContent = '';
+            // Opciones de tamaño
+            const sizeContainer = document.getElementById('combinadasSizeOptions');
+            let html = '';
+            TAMANIOS_DISPONIBLES.forEach(t => {
+                const label = TAMANIOS_LABEL[t];
+                // Tomamos el precio de la primera pizza especial (ej. Carnes Frias) para mostrar
+                const sample = PRODUCTOS.find(p => p.tipo === 'pizza' && p.categoria === 'especiales');
+                const precio = sample ? sample.precios[t] : 0;
+                html += `
+                    <button class="size-option-comb" data-tamanio="${t}" style="background:#f3f4f6; padding:0.5rem 1rem; border-radius:50px; border:2px solid transparent; font-weight:500;">
+                        ${label} ${formatPrice(precio)}
+                    </button>
+                `;
+            });
+            sizeContainer.innerHTML = html;
+            // Seleccionar primero
+            const first = sizeContainer.querySelector('.size-option-comb');
+            if (first) {
+                first.style.borderColor = '#be2022';
+                combinadasTamanio = first.dataset.tamanio;
+            }
+            // Eventos de tamaño
+            sizeContainer.querySelectorAll('.size-option-comb').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    sizeContainer.querySelectorAll('.size-option-comb').forEach(b => b.style.borderColor = 'transparent');
+                    this.style.borderColor = '#be2022';
+                    combinadasTamanio = this.dataset.tamanio;
+                    actualizarNotaCombinadas();
+                });
+            });
+
+            // Lista de especialidades (todas las pizzas con categoria 'especiales' y 'especialidades')
+            const especialidades = PRODUCTOS.filter(p => p.tipo === 'pizza' && (p.categoria === 'especiales' || p.categoria ===
+                'especialidades'));
+            const container = document.getElementById('combinadasSpecialties');
+            let html2 = '';
+            especialidades.forEach(p => {
+                html2 += `
+                    <button class="specialty-btn" data-id="${p.id}" style="background:#f3f4f6; border-radius:0.75rem; padding:0.5rem; border:2px solid transparent; font-size:0.9rem;">
+                        ${p.nombre}
+                    </button>
+                `;
+            });
+            container.innerHTML = html2;
+            // Eventos de selección
+            container.querySelectorAll('.specialty-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const idx = combinadasSeleccion.indexOf(id);
+                    if (idx >= 0) {
+                        combinadasSeleccion.splice(idx, 1);
+                        this.style.borderColor = 'transparent';
+                    } else {
+                        if (combinadasSeleccion.length >= 4) {
+                            alert('Máximo 4 especialidades');
+                            return;
+                        }
+                        combinadasSeleccion.push(id);
+                        this.style.borderColor = '#be2022';
+                    }
+                    document.getElementById('combinadasCounter').textContent = `Seleccionados: ${combinadasSeleccion.length}`;
+                    actualizarNotaCombinadas();
+                });
+            });
+
+            document.getElementById('modalCombinadas').classList.add('active');
+        }
+
+        function actualizarNotaCombinadas() {
+            const nota = document.getElementById('combinadasPriceNote');
+            const count = combinadasSeleccion.length;
+            let extra = 0;
+            if (count === 3) extra = 20;
+            else if (count >= 4) extra = 40;
+            if (count >= 2 && combinadasTamanio) {
+                const sample = PRODUCTOS.find(p => p.tipo === 'pizza' && p.categoria === 'especiales');
+                const base = sample ? sample.precios[combinadasTamanio] : 0;
+                const total = base + extra;
+                nota.textContent = `Precio base ${formatPrice(base)} + ${extra > 0 ? 'extra $'+extra : ''} = ${formatPrice(total)}`;
+            } else {
+                nota.textContent = '';
+            }
+        }
+
+        document.getElementById('closeCombinadas').addEventListener('click', () => {
+            document.getElementById('modalCombinadas').classList.remove('active');
+        });
+        document.getElementById('modalCombinadas').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+
+        document.getElementById('combinadasAddToCart').addEventListener('click', function() {
+            if (combinadasSeleccion.length < 2) {
+                alert('Selecciona al menos 2 especialidades');
+                return;
+            }
+            if (!combinadasTamanio) {
+                alert('Selecciona un tamaño');
+                return;
+            }
+            // Calcular precio
+            const sample = PRODUCTOS.find(p => p.tipo === 'pizza' && p.categoria === 'especiales');
+            let base = sample ? sample.precios[combinadasTamanio] : 0;
+            let extra = 0;
+            if (combinadasSeleccion.length === 3) extra = 20;
+            else if (combinadasSeleccion.length >= 4) extra = 40;
+            const precioUnitario = base + extra;
+            // Crear un item combinado en el carrito
+            const nombres = combinadasSeleccion.map(id => findProduct(id)?.nombre || '').join(', ');
+            carrito.push({
+                productId: 'combinada_' + Date.now(),
+                nombre: `Combinada (${nombres})`,
+                tamanio: combinadasTamanio,
+                precioUnitario: precioUnitario,
+                cantidad: 1,
+                ingredientes: `Especialidades: ${nombres}`,
+                esCombinada: true,
+            });
+            actualizarCarritoUI();
+            document.getElementById('modalCombinadas').classList.remove('active');
+        });
+
+        // ========================================================================
+        // NAVEGACIÓN POR PESTAÑAS
+        // ========================================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const categoria = this.dataset.categoria;
+                renderCategoria(categoria);
+            });
+        });
+
+        // ========================================================================
+        // BOTÓN DE MENÚ (Onboarding)
+        // ========================================================================
+        document.getElementById('btnMenu').addEventListener('click', function() {
+            document.getElementById('welcome').classList.add('hidden');
+            document.getElementById('menu').classList.remove('hidden');
+            // Cargar la primera categoría (pizzas)
+            renderCategoria('pizzas');
+            actualizarCarritoUI();
+        });
+
+        // ========================================================================
+        // CARRITO: ABRIR PANEL
+        // ========================================================================
+        document.getElementById('btnOpenCartPanel').addEventListener('click', function() {
+            document.getElementById('cartPanel').classList.remove('hidden');
+            renderCartItems();
+        });
+        document.getElementById('closeCartPanel').addEventListener('click', function() {
+            document.getElementById('cartPanel').classList.add('hidden');
+        });
+        document.getElementById('btnAddMore').addEventListener('click', function() {
+            document.getElementById('cartPanel').classList.add('hidden');
+        });
+
+        // ========================================================================
+        // CHECKOUT (PAGO Y ENTREGA)
+        // ========================================================================
+        document.getElementById('btnCheckout').addEventListener('click', function() {
+            if (carrito.length === 0) return;
+            document.getElementById('cartPanel').classList.add('hidden');
+            document.getElementById('modalCheckout').classList.add('active');
+            // Resetear campos
+            document.querySelector('input[name="deliveryType"][value="recoger"]').checked = true;
+            document.getElementById('deliveryAddress').classList.add('hidden');
+            document.querySelector('input[name="paymentMethod"][value="efectivo"]').checked = true;
+            document.getElementById('cashDetails').classList.remove('hidden');
+            document.getElementById('cardInfo').classList.add('hidden');
+            document.getElementById('transferInfo').classList.add('hidden');
+            document.getElementById('cashAmount').value = '';
+        });
+
+        // Eventos de tipo de entrega
+        document.querySelectorAll('input[name="deliveryType"]').forEach(el => {
+            el.addEventListener('change', function() {
+                if (this.value === 'domicilio') {
+                    document.getElementById('deliveryAddress').classList.remove('hidden');
+                } else {
+                    document.getElementById('deliveryAddress').classList.add('hidden');
+                }
+            });
+        });
+
+        // Eventos de método de pago
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(el => {
+            el.addEventListener('change', function() {
+                document.getElementById('cashDetails').classList.add('hidden');
+                document.getElementById('cardInfo').classList.add('hidden');
+                document.getElementById('transferInfo').classList.add('hidden');
+                if (this.value === 'efectivo') {
+                    document.getElementById('cashDetails').classList.remove('hidden');
+                } else if (this.value === 'tarjeta') {
+                    document.getElementById('cardInfo').classList.remove('hidden');
+                } else if (this.value === 'transferencia') {
+                    document.getElementById('transferInfo').classList.remove('hidden');
+                }
+            });
+        });
+
+        // Copiar CLABE y tarjeta
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.dataset.clip;
+                const el = document.getElementById(targetId);
+                if (el) {
+                    const text = el.textContent.trim();
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Copiado al portapapeles');
+                    }).catch(() => {
+                        // fallback
+                        const range = document.createRange();
+                        range.selectNode(el);
+                        window.getSelection().removeAllRanges();
+                        window.getSelection().addRange(range);
+                        document.execCommand('copy');
+                        alert('Copiado al portapapeles');
+                    });
+                }
+            });
+        });
+
+        // Confirmar pedido
+        document.getElementById('btnConfirmOrder').addEventListener('click', function() {
+            if (carrito.length === 0) return;
+            // Construir mensaje
+            let mensaje = '🍕 *Pedido Daim\'s Pizza*%0A';
+            let total = 0;
+            carrito.forEach(item => {
+                const nombre = item.tamanio ? `${item.nombre} (${TAMANIOS_LABEL[item.tamanio]})` : item.nombre;
+                const subtotal = item.precioUnitario * item.cantidad;
+                total += subtotal;
+                mensaje += `- ${nombre} x${item.cantidad} = $${subtotal.toFixed(2)}%0A`;
+            });
+            mensaje += `%0A*Total: $${total.toFixed(2)}*%0A`;
+
+            // Entrega
+            const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
+            if (deliveryType === 'domicilio') {
+                const dir = document.querySelector('#deliveryAddress textarea').value.trim() || 'No especificada';
+                mensaje += `%0A*Dirección:* ${dir}`;
+            } else {
+                mensaje += `%0A*Recoger en local*`;
+            }
+
+            // Pago
+            const payment = document.querySelector('input[name="paymentMethod"]:checked').value;
+            let pagoStr = '';
+            if (payment === 'efectivo') {
+                const cash = document.getElementById('cashAmount').value;
+                pagoStr = 'Efectivo';
+                if (cash) {
+                    const cambio = parseFloat(cash) - total;
+                    pagoStr += ` (paga con $${cash}, cambio $${cambio >= 0 ? cambio.toFixed(2) : 'insuficiente'})`;
+                } else {
+                    pagoStr += ' (monto exacto)';
+                }
+            } else if (payment === 'tarjeta') {
+                pagoStr = 'Tarjeta (cobro al entregar)';
+            } else if (payment === 'transferencia') {
+                pagoStr = 'Transferencia (datos bancarios)';
+            }
+            mensaje += `%0A*Pago:* ${pagoStr}`;
+
+            // Enviar a WhatsApp
+            const url = `https://wa.me/${APP_CONFIG.contact.whatsapp}?text=${mensaje}`;
+            window.open(url, '_blank');
+            // Cerrar modales
+            document.getElementById('modalCheckout').classList.remove('active');
+            // Opcional: limpiar carrito
+            carrito = [];
+            actualizarCarritoUI();
+        });
+
+        document.getElementById('closeCheckout').addEventListener('click', function() {
+            document.getElementById('modalCheckout').classList.remove('active');
+        });
+        document.getElementById('modalCheckout').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+
+        // ========================================================================
+        // INICIO: Mostrar bienvenida
+        // ========================================================================
+        // Ya está visible por defecto
+        actualizarCarritoUI();
+
+        // ========================================================================
+        // ESTILOS ADICIONALES PARA PESTAÑA ACTIVA
+        // ========================================================================
+        const style = document.createElement('style');
+        style.textContent = `
+            .tab-btn.active {
+                color: #be2022;
+                border-bottom: 3px solid #be2022;
+                padding-bottom: 4px;
+            }
+            .tab-btn {
+                padding-bottom: 4px;
+                border-bottom: 3px solid transparent;
+                transition: all 0.15s;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
 </body>
 </html>
