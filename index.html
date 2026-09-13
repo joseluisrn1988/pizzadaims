@@ -66,6 +66,31 @@
             background: #ddd;
         }
 
+/* Tarjetas para grid (snacks, micheladas, bebidas) */
+.grid-card {
+    background: #eaebed;
+    color: #0d0d0d;
+    border-radius: 1rem;
+    padding: 0.75rem;
+    transition: transform 0.1s ease;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.grid-card:active {
+    transform: scale(0.97);
+}
+.grid-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    background: #ddd;
+    margin-bottom: 0.5rem;
+}
+        
         /* Modal superpuesto */
         .modal-overlay {
             position: fixed;
@@ -659,50 +684,58 @@
                 });
                 return;
             } else {
-                // Snacks, Micheladas, Bebidas
-                const otros = PRODUCTOS.filter(p => p.tipo === 'otro' && p.categoria === categoria);
-                let html = `<div class="grid grid-cols-2 gap-4">`;
-                otros.forEach(p => {
-                    html += `
-                        <div class="bg-gray-light text-primary rounded-xl overflow-hidden shadow-md cursor-pointer product-card-other" data-id="${p.id}">
-                            <img src="${p.imagen}" alt="${p.nombre}" class="w-full h-32 object-cover" />
-                            <div class="p-3">
-                                <div class="font-bold">${p.nombre}</div>
-                                <div class="text-red-daims font-bold">${formatPrice(p.precio)}</div>
-                                <button class="mt-2 w-full bg-red-daims hover:bg-red-700 text-white font-bold py-1 rounded-full text-sm transition add-other-btn" data-id="${p.id}">Agregar</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                html += `</div>`;
-                container.innerHTML = html;
-                // Eventos
-                container.querySelectorAll('.add-other-btn').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const pid = this.dataset.id;
-                        const product = findProduct(pid);
-                        if (product) {
-                            // Buscar si ya existe en carrito (sin tamaño)
-                            const existente = carrito.find(item => item.productId === pid && !item.tamanio);
-                            if (existente) {
-                                existente.cantidad += 1;
-                            } else {
-                                carrito.push({
-                                    productId: pid,
-                                    nombre: product.nombre,
-                                    tamanio: null,
-                                    precioUnitario: product.precio,
-                                    cantidad: 1,
-                                    ingredientes: '',
-                                });
-                            }
-                            actualizarCarritoUI();
-                        }
+    // Snacks, Micheladas, Bebidas -> grid con estilo igual a pizzas
+    const otros = PRODUCTOS.filter(p => p.tipo === 'otro' && p.categoria === categoria);
+
+    const titulos = {
+        snacks: 'Snacks',
+        micheladas: 'Micheladas',
+        bebidas: 'Bebidas'
+    };
+
+    let html = `<h3 class="text-lg font-bold text-red-daims mb-3">${titulos[categoria] || categoria}</h3>`;
+    html += `<div class="grid grid-cols-2 gap-4">`;
+
+    otros.forEach(p => {
+        html += `
+            <div class="grid-card" data-id="${p.id}">
+                <img src="${p.imagen}" alt="${p.nombre}" />
+                <div class="font-bold text-sm">${p.nombre}</div>
+                <div class="mt-1 text-red-daims font-bold text-sm">${formatPrice(p.precio)}</div>
+                <button class="mt-auto w-full bg-red-daims hover:bg-red-700 text-white font-bold py-1 rounded-full text-xs transition add-other-btn" data-id="${p.id}">+ Agregar</button>
+            </div>
+        `;
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
+
+    // Eventos del botón agregar
+    container.querySelectorAll('.add-other-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const pid = this.dataset.id;
+            const product = findProduct(pid);
+            if (product) {
+                const existente = carrito.find(item => item.productId === pid && !item.tamanio);
+                if (existente) {
+                    existente.cantidad += 1;
+                } else {
+                    carrito.push({
+                        productId: pid,
+                        nombre: product.nombre,
+                        tamanio: null,
+                        precioUnitario: product.precio,
+                        cantidad: 1,
+                        ingredientes: '',
                     });
-                });
-                return;
+                }
+                actualizarCarritoUI();
             }
+        });
+    });
+    return;
+}
         }
 
         function renderCinta(titulo, productos) {
