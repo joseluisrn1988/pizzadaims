@@ -581,9 +581,9 @@
             carrito.forEach((item, index) => {
                 const nombre = item.tamanio ? `${item.nombre} (${TAMANIOS_LABEL[item.tamanio]})` : item.nombre;
                 html += `
-                    <div class="flex items-center justify-between bg-gray-500 p-3 rounded-xl">
+                    <div class="flex items-center justify-between bg-gray-200 p-3 rounded-xl">
                         <div>
-                            <div class="font-semibold">${nombre}</div>
+                            <div class="font-semibold text-gray-600">${nombre}</div>
                             <div class="text-sm text-gray-600">${formatPrice(item.precioUnitario)} c/u</div>
                         </div>
                         <div class="flex items-center gap-2">
