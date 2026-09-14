@@ -888,20 +888,23 @@
             });
             sizeContainer.innerHTML = htmlSizes;
 
-            // 3. Renderizar Especialidades (Formato lista con checkbox)
-            const especialidades = PRODUCTOS.filter(p => p.tipo === 'pizza' && (p.categoria === 'especiales' || p.categoria === 'especialidades'));
+            // 3. Renderizar Especialidades (Incluye TODAS las pizzas que pueden ser combinadas)
+            const especialidades = PRODUCTOS.filter(p => p.tipo === 'pizza' && (p.categoria === 'especiales' || p.categoria === 'especialidades' || p.categoria === 'clasicas'));
             const specialtiesContainer = document.getElementById('combinadasSpecialties');
+            
+            // Cambiado a grid de 2 columnas ('grid grid-cols-2 gap-2')
+            specialtiesContainer.className = 'grid grid-cols-2 gap-2';
             let htmlSpecialties = '';
             
             especialidades.forEach(p => {
                 htmlSpecialties += `
-                    <div class="specialty-btn bg-white border-2 border-gray-200 rounded-xl p-3 cursor-pointer transition flex items-center justify-between shadow-sm hover:bg-gray-50" data-id="${p.id}">
-                        <div class="flex-1 pr-3">
-                            <div class="font-bold text-gray-800 text-sm">${p.nombre}</div>
-                            <div class="text-[10px] text-gray-500 line-clamp-1 mt-0.5 leading-tight">${p.ingredientes}</div>
+                    <div class="specialty-btn bg-white border-2 border-gray-200 rounded-xl p-2.5 cursor-pointer transition flex items-center justify-between shadow-sm hover:bg-gray-50 h-full" data-id="${p.id}">
+                        <div class="flex-1 pr-2">
+                            <div class="font-bold text-gray-800 text-xs leading-tight">${p.nombre}</div>
+                            <div class="text-[9px] text-gray-500 line-clamp-1 mt-0.5 leading-tight">${p.ingredientes}</div>
                         </div>
-                        <div class="checkbox-indicator w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-white transition flex-shrink-0">
-                            <i class="fas fa-check text-xs opacity-0 transition-opacity"></i>
+                        <div class="checkbox-indicator w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center text-white transition flex-shrink-0">
+                            <i class="fas fa-check text-[10px] opacity-0 transition-opacity"></i>
                         </div>
                     </div>
                 `;
@@ -963,7 +966,7 @@
             });
 
             document.getElementById('modalCombinadas').classList.add('active');
-            document.body.style.overflow = 'hidden'; // Evitar scroll del fondo en móviles
+            document.body.style.overflow = 'hidden'; 
         }
 
         function seleccionarTamanioCombinada(elemento) {
