@@ -468,29 +468,29 @@
 
         // Pizzas de la página 1
         const pizzasPagina1 = [
-            { id: 'p1', nombre: 'Jamón', ingredientes: 'Jamón y queso' },
-            { id: 'p2', nombre: 'Tocino', ingredientes: 'Tocino y queso' },
-            { id: 'p3', nombre: 'Salchicha', ingredientes: 'Salchicha y queso' },
-            { id: 'p4', nombre: 'Atún', ingredientes: 'Atún y queso' },
-            { id: 'p5', nombre: 'Chorizo', ingredientes: 'Chorizo y queso' },
-            { id: 'p6', nombre: 'Camarones', ingredientes: 'Camarones y queso' },
-            { id: 'p7', nombre: 'Bistec Adobado', ingredientes: 'Bistec adobado y queso' },
-            { id: 'p8', nombre: 'Puntas de Bistec', ingredientes: 'Puntas de bistec y queso' },
-            { id: 'p9', nombre: 'Funghy', ingredientes: 'Champiñones y queso' },
-            { id: 'p10', nombre: 'Hawaiana', ingredientes: 'Jamón, piña y queso' },
-            { id: 'p11', nombre: 'Carnes Frias', ingredientes: 'Salchicha, jamón, chorizo, peperoni, pimiento y queso' },
-            { id: 'p12', nombre: 'Mexicana', ingredientes: 'Carne molida, chiles nachos, jitomate en rodaja, cebolla en rodaja' },
-            { id: 'p13', nombre: 'Pizza Daim\'s', ingredientes: 'Salchicha, jamón, chorizo, peperoni, pimiento, tocino, piña, champiñones y queso' },
+            { id: 'p1', nombre: 'Jamón', ingredientes: 'Jamón y queso', imagen: 'img/jamon.jpg' },
+            { id: 'p2', nombre: 'Tocino', ingredientes: 'Tocino y queso', imagen: 'img/tocino.jpg' },
+            { id: 'p3', nombre: 'Salchicha', ingredientes: 'Salchicha y queso', imagen: 'img/salchicha.jpg' },
+            { id: 'p4', nombre: 'Atún', ingredientes: 'Atún y queso', imagen: 'img/atun.jpg' },
+            { id: 'p5', nombre: 'Chorizo', ingredientes: 'Chorizo y queso', imagen: 'img/chorizo.jpg' },
+            { id: 'p6', nombre: 'Camarones', ingredientes: 'Camarones y queso', imagen: 'img/camarones.jpg' },
+            { id: 'p7', nombre: 'Bistec Adobado', ingredientes: 'Bistec adobado y queso', imagen: 'img/bistec.jpg' },
+            { id: 'p8', nombre: 'Puntas de Bistec', ingredientes: 'Puntas de bistec y queso', imagen: 'img/puntas.jpg' },
+            { id: 'p9', nombre: 'Funghy', ingredientes: 'Champiñones y queso', imagen: 'img/funghy.jpg' },
+            { id: 'p10', nombre: 'Hawaiana', ingredientes: 'Jamón, piña y queso', imagen: 'img/hawaiana.jpg' },
+            { id: 'p11', nombre: 'Carnes Frias', ingredientes: 'Salchicha, jamón, chorizo, peperoni, pimiento y queso', imagen: 'img/carnes-frias.jpg' },
+            { id: 'p12', nombre: 'Mexicana', ingredientes: 'Carne molida, chiles nachos, jitomate en rodaja, cebolla en rodaja', imagen: 'img/mexicana.jpg' },
+            { id: 'p13', nombre: 'Pizza Daim\'s', ingredientes: 'Salchicha, jamón, chorizo, peperoni, pimiento, tocino, piña, champiñones y queso', imagen: 'img/daims.jpg' },
         ];
 
         // Pizzas de la página 2
         const pizzasPagina2 = [
-            { id: 'p14', nombre: 'Azteca', ingredientes: 'Frijol, cebolla, chorizo, chile jalapeño y queso' },
-            { id: 'p15', nombre: 'Texana', ingredientes: 'Salami, cebolla, chorizo, chile jalapeño y queso' },
-            { id: 'p16', nombre: 'Chiken Hawaiana', ingredientes: 'Pollo, tocino, piña, queso y salsa mango habanero' },
-            { id: 'p17', nombre: '4 Quesos', ingredientes: 'Queso mozarella, queso cheddar, queso parmesano y queso asadero' },
-            { id: 'p18', nombre: 'Stravaganza', ingredientes: 'Peperoni, carne molida, jamón, chorizo, pimiento, cebolla, champiñones, aceitunas y queso' },
-            { id: 'p19', nombre: 'California BBQ', ingredientes: 'Tocino, pollo, carne molida, queso y salsa BBQ' },
+            { id: 'p14', nombre: 'Azteca', ingredientes: 'Frijol, cebolla, chorizo, chile jalapeño y queso', imagen: 'img/azteca.jpg' },
+            { id: 'p15', nombre: 'Texana', ingredientes: 'Salami, cebolla, chorizo, chile jalapeño y queso', imagen: 'img/texana.jpg' },
+            { id: 'p16', nombre: 'Chiken Hawaiana', ingredientes: 'Pollo, tocino, piña, queso y salsa mango habanero', imagen: 'img/chiken-hawaiana.jpg' },
+            { id: 'p17', nombre: '4 Quesos', ingredientes: 'Queso mozarella, queso cheddar, queso parmesano y queso asadero', imagen: 'img/4quesos.jpg' },
+            { id: 'p18', nombre: 'Stravaganza', ingredientes: 'Peperoni, carne molida, jamón, chorizo, pimiento, cebolla, champiñones, aceitunas y queso', imagen: 'img/stravaganza.jpg' },
+            { id: 'p19', nombre: 'California BBQ', ingredientes: 'Tocino, pollo, carne molida, queso y salsa BBQ', imagen: 'img/california-bbq.jpg' },
         ];
 
         // Asignar categorías según el enunciado
@@ -505,22 +505,22 @@
             if (especialidades.includes(p.nombre)) categoria = 'especialidades';
             // Para clasicas: si no está en especiales ni especialidades, es clasica
             if (!especiales.includes(p.nombre) && !especialidades.includes(p.nombre)) categoria = 'clasicas';
-            PRODUCTOS.push(crearPizza(p.id, p.nombre, p.ingredientes, categoria));
+            PRODUCTOS.push(crearPizza(p.id, p.nombre, p.ingredientes, categoria, p.imagen));
         });
 
         // ========================================================================
         // OTROS PRODUCTOS (Snacks, Micheladas, Bebidas) - con precios fijos de ejemplo
         // ========================================================================
         const OTROS = [
-            { id: 's1', categoria: 'snacks', nombre: 'Alitas 1/2 kg BBQ', precio: 180, imagen: 'https://via.placeholder.com/300x200?text=Alitas' },
-            { id: 's2', categoria: 'snacks', nombre: 'Alitas 1 kg BBQ', precio: 320, imagen: 'https://via.placeholder.com/300x200?text=Alitas' },
-            { id: 's3', categoria: 'snacks', nombre: 'Alitas 1/2 kg Hunts', precio: 190, imagen: 'https://via.placeholder.com/300x200?text=Alitas' },
-            { id: 's4', categoria: 'snacks', nombre: 'Alitas 1 kg Hunts', precio: 340, imagen: 'https://via.placeholder.com/300x200?text=Alitas' },
-            { id: 's5', categoria: 'snacks', nombre: 'Boneless', precio: 150, imagen: 'https://via.placeholder.com/300x200?text=Boneless' },
-            { id: 's6', categoria: 'snacks', nombre: 'Papas', precio: 90, imagen: 'https://via.placeholder.com/300x200?text=Papas' },
-            { id: 'm1', categoria: 'micheladas', nombre: 'Michelada 1L', precio: 120, imagen: 'https://via.placeholder.com/300x200?text=Michelada' },
-            { id: 'b1', categoria: 'bebidas', nombre: 'Coctelería 1L', precio: 150, imagen: 'https://via.placeholder.com/300x200?text=Coctel' },
-            { id: 'b2', categoria: 'bebidas', nombre: 'Refresco 1L', precio: 40, imagen: 'https://via.placeholder.com/300x200?text=Refresco' },
+            { id: 's1', categoria: 'snacks', nombre: 'Alitas 1/2 kg BBQ', precio: 180, imagen: 'img/alitas-bbq.jpg' },
+            { id: 's2', categoria: 'snacks', nombre: 'Alitas 1 kg BBQ', precio: 320, imagen: 'img/alitas-bbq.jpg' },
+            { id: 's3', categoria: 'snacks', nombre: 'Alitas 1/2 kg Hunts', precio: 190, imagen: 'img/alitas-hunts.jpg' },
+            { id: 's4', categoria: 'snacks', nombre: 'Alitas 1 kg Hunts', precio: 340, imagen: 'img/alitas-hunts.jpg' },
+            { id: 's5', categoria: 'snacks', nombre: 'Boneless', precio: 150, imagen: 'img/boneless.jpg' },
+            { id: 's6', categoria: 'snacks', nombre: 'Papas', precio: 90, imagen: 'img/papas.jpg' },
+            { id: 'm1', categoria: 'micheladas', nombre: 'Michelada 1L', precio: 120, imagen: 'img/michelada.jpg' },
+            { id: 'b1', categoria: 'bebidas', nombre: 'Coctelería 1L', precio: 150, imagen: 'img/coctel.jpg' },
+            { id: 'b2', categoria: 'bebidas', nombre: 'Refresco 1L', precio: 40, imagen: 'img/refresco.jpg' },
         ];
 
         OTROS.forEach(item => {
