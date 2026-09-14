@@ -66,30 +66,30 @@
             background: #ddd;
         }
 
-/* Tarjetas para grid (snacks, micheladas, bebidas) */
-.grid-card {
-    background: #eaebed;
-    color: #0d0d0d;
-    border-radius: 1rem;
-    padding: 0.75rem;
-    transition: transform 0.1s ease;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-.grid-card:active {
-    transform: scale(0.97);
-}
-.grid-card img {
-    width: 100%;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 0.75rem;
-    background: #ddd;
-    margin-bottom: 0.5rem;
-}
+        /* Tarjetas para grid (snacks, micheladas, bebidas) */
+        .grid-card {
+            background: #eaebed;
+            color: #0d0d0d;
+            border-radius: 1rem;
+            padding: 0.75rem;
+            transition: transform 0.1s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .grid-card:active {
+            transform: scale(0.97);
+        }
+        .grid-card img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.75rem;
+            background: #ddd;
+            margin-bottom: 0.5rem;
+        }
         
         /* Modal superpuesto */
         .modal-overlay {
@@ -258,18 +258,18 @@
     </div>
 
     <!-- ======================== MENÚ PRINCIPAL ======================== -->
-<div id="menu" class="hidden min-h-screen bg-primary text-white pb-28">
-    <!-- Barra de navegación fija -->
-    <nav class="sticky top-0 z-50 bg-primary border-b border-gray-800 py-2 px-3">
-        <div class="flex items-center justify-center">
-            <div class="nav-scroll flex gap-3 text-sm font-medium">
-                <button class="tab-btn active" data-categoria="pizzas"><i class="fas fa-pizza-slice mr-1"></i>Pizzas</button>
-                <button class="tab-btn" data-categoria="snacks"><i class="fas fa-drumstick-bite mr-1"></i>Snacks</button>
-                <button class="tab-btn" data-categoria="micheladas"><i class="fas fa-beer mr-1"></i>Micheladas</button>
-                <button class="tab-btn" data-categoria="bebidas"><i class="fas fa-wine-bottle mr-1"></i>Bebidas</button>
+    <div id="menu" class="hidden min-h-screen bg-primary text-white pb-28">
+        <!-- Barra de navegación fija -->
+        <nav class="sticky top-0 z-50 bg-primary border-b border-gray-800 py-2 px-3">
+            <div class="flex items-center justify-center">
+                <div class="nav-scroll flex gap-3 text-sm font-medium">
+                    <button class="tab-btn active" data-categoria="pizzas"><i class="fas fa-pizza-slice mr-1"></i>Pizzas</button>
+                    <button class="tab-btn" data-categoria="snacks"><i class="fas fa-drumstick-bite mr-1"></i>Snacks</button>
+                    <button class="tab-btn" data-categoria="micheladas"><i class="fas fa-beer mr-1"></i>Micheladas</button>
+                    <button class="tab-btn" data-categoria="bebidas"><i class="fas fa-wine-bottle mr-1"></i>Bebidas</button>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
         <!-- Contenido dinámico -->
         <div id="menu-content" class="px-3 py-4">
@@ -436,15 +436,18 @@
         // ========================================================================
         const PRODUCTOS = [];
 
-        // Precios por tamaño (usamos la estructura de la segunda página)
+        // Precios por tamaño 
         const PRECIOS_BASE = {
             chica: 130,
             mediana: 230,
             grande: 330,
             extraFamiliar: 490,
-            jumbo: 590,
+            jumbo: 590, 
         };
-        const TAMANIOS_DISPONIBLES = ['chica', 'mediana', 'grande', 'extraFamiliar', 'mega', 'jumbo'];
+        
+        // CORRECCIÓN 1: 'mega' fue removido para coincidir exactamente con PRECIOS_BASE
+        const TAMANIOS_DISPONIBLES = ['chica', 'mediana', 'grande', 'extraFamiliar', 'jumbo'];
+        
         const TAMANIOS_LABEL = {
             chica: 'Chica (8 rebanadas)',
             mediana: 'Mediana (12 rebanadas)',
@@ -685,58 +688,58 @@
                 });
                 return;
             } else {
-    // Snacks, Micheladas, Bebidas -> grid con estilo igual a pizzas
-    const otros = PRODUCTOS.filter(p => p.tipo === 'otro' && p.categoria === categoria);
+                // Snacks, Micheladas, Bebidas -> grid con estilo igual a pizzas
+                const otros = PRODUCTOS.filter(p => p.tipo === 'otro' && p.categoria === categoria);
 
-    const titulos = {
-        snacks: 'Snacks',
-        micheladas: 'Micheladas',
-        bebidas: 'Bebidas'
-    };
+                const titulos = {
+                    snacks: 'Snacks',
+                    micheladas: 'Micheladas',
+                    bebidas: 'Bebidas'
+                };
 
-    let html = `<h3 class="text-lg font-bold text-red-daims mb-3">${titulos[categoria] || categoria}</h3>`;
-    html += `<div class="grid grid-cols-2 gap-4">`;
+                let html = `<h3 class="text-lg font-bold text-red-daims mb-3">${titulos[categoria] || categoria}</h3>`;
+                html += `<div class="grid grid-cols-2 gap-4">`;
 
-    otros.forEach(p => {
-        html += `
-            <div class="grid-card" data-id="${p.id}">
-                <img src="${p.imagen}" alt="${p.nombre}" />
-                <div class="font-bold text-sm">${p.nombre}</div>
-                <div class="mt-1 text-red-daims font-bold text-sm">${formatPrice(p.precio)}</div>
-                <button class="mt-auto w-full bg-red-daims hover:bg-red-700 text-white font-bold py-1 rounded-full text-xs transition add-other-btn" data-id="${p.id}">+ Agregar</button>
-            </div>
-        `;
-    });
+                otros.forEach(p => {
+                    html += `
+                        <div class="grid-card" data-id="${p.id}">
+                            <img src="${p.imagen}" alt="${p.nombre}" />
+                            <div class="font-bold text-sm">${p.nombre}</div>
+                            <div class="mt-1 text-red-daims font-bold text-sm">${formatPrice(p.precio)}</div>
+                            <button class="mt-auto w-full bg-red-daims hover:bg-red-700 text-white font-bold py-1 rounded-full text-xs transition add-other-btn" data-id="${p.id}">+ Agregar</button>
+                        </div>
+                    `;
+                });
 
-    html += `</div>`;
-    container.innerHTML = html;
+                html += `</div>`;
+                container.innerHTML = html;
 
-    // Eventos del botón agregar
-    container.querySelectorAll('.add-other-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const pid = this.dataset.id;
-            const product = findProduct(pid);
-            if (product) {
-                const existente = carrito.find(item => item.productId === pid && !item.tamanio);
-                if (existente) {
-                    existente.cantidad += 1;
-                } else {
-                    carrito.push({
-                        productId: pid,
-                        nombre: product.nombre,
-                        tamanio: null,
-                        precioUnitario: product.precio,
-                        cantidad: 1,
-                        ingredientes: '',
+                // Eventos del botón agregar
+                container.querySelectorAll('.add-other-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const pid = this.dataset.id;
+                        const product = findProduct(pid);
+                        if (product) {
+                            const existente = carrito.find(item => item.productId === pid && !item.tamanio);
+                            if (existente) {
+                                existente.cantidad += 1;
+                            } else {
+                                carrito.push({
+                                    productId: pid,
+                                    nombre: product.nombre,
+                                    tamanio: null,
+                                    precioUnitario: product.precio,
+                                    cantidad: 1,
+                                    ingredientes: '',
+                                });
+                            }
+                            actualizarCarritoUI();
+                        }
                     });
-                }
-                actualizarCarritoUI();
+                });
+                return;
             }
-        });
-    });
-    return;
-}
         }
 
         function renderCinta(titulo, productos) {
@@ -862,8 +865,7 @@
             });
 
             // Lista de especialidades (todas las pizzas con categoria 'especiales' y 'especialidades')
-            const especialidades = PRODUCTOS.filter(p => p.tipo === 'pizza' && (p.categoria === 'especiales' || p.categoria ===
-                'especialidades'));
+            const especialidades = PRODUCTOS.filter(p => p.tipo === 'pizza' && (p.categoria === 'especiales' || p.categoria === 'especialidades'));
             const container = document.getElementById('combinadasSpecialties');
             let html2 = '';
             especialidades.forEach(p => {
@@ -1056,26 +1058,34 @@
         });
 
         // Confirmar pedido
+        // CORRECCIÓN 2 y 3: Se implementó la codificación segura del mensaje, el uso de '\n' y la validación de dirección
         document.getElementById('btnConfirmOrder').addEventListener('click', function() {
             if (carrito.length === 0) return;
-            // Construir mensaje
-            let mensaje = '🍕 *Pedido Daim\'s Pizza*%0A';
+            
+            // Construir mensaje usando saltos de línea normales ('\n')
+            let mensaje = '🍕 *Pedido Daim\'s Pizza*\n';
             let total = 0;
             carrito.forEach(item => {
                 const nombre = item.tamanio ? `${item.nombre} (${TAMANIOS_LABEL[item.tamanio]})` : item.nombre;
                 const subtotal = item.precioUnitario * item.cantidad;
                 total += subtotal;
-                mensaje += `- ${nombre} x${item.cantidad} = $${subtotal.toFixed(2)}%0A`;
+                mensaje += `- ${nombre} x${item.cantidad} = $${subtotal.toFixed(2)}\n`;
             });
-            mensaje += `%0A*Total: $${total.toFixed(2)}*%0A`;
+            mensaje += `\n*Total: $${total.toFixed(2)}*\n`;
 
-            // Entrega
+            // Entrega y Validación de Dirección
             const deliveryType = document.querySelector('input[name="deliveryType"]:checked').value;
             if (deliveryType === 'domicilio') {
-                const dir = document.querySelector('#deliveryAddress textarea').value.trim() || 'No especificada';
-                mensaje += `%0A*Dirección:* ${dir}`;
+                const dir = document.querySelector('#deliveryAddress textarea').value.trim();
+                
+                // Si está vacío, lanzamos alerta y detenemos la ejecución
+                if (!dir) {
+                    alert("Por favor, ingresa tu dirección completa para la entrega a domicilio.");
+                    return; 
+                }
+                mensaje += `\n*Dirección:* ${dir}`;
             } else {
-                mensaje += `%0A*Recoger en local*`;
+                mensaje += `\n*Recoger en local*`;
             }
 
             // Pago
@@ -1095,14 +1105,15 @@
             } else if (payment === 'transferencia') {
                 pagoStr = 'Transferencia (datos bancarios)';
             }
-            mensaje += `%0A*Pago:* ${pagoStr}`;
+            mensaje += `\n*Pago:* ${pagoStr}`;
 
-            // Enviar a WhatsApp
-            const url = `https://wa.me/${APP_CONFIG.contact.whatsapp}?text=${mensaje}`;
+            // Enviar a WhatsApp usando encodeURIComponent para garantizar que no se rompa el link
+            const url = `https://wa.me/${APP_CONFIG.contact.whatsapp}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
+            
             // Cerrar modales
             document.getElementById('modalCheckout').classList.remove('active');
-            // Opcional: limpiar carrito
+            // Opcional: limpiar carrito (comentado si prefieres que el usuario lo conserve)
             carrito = [];
             actualizarCarritoUI();
         });
