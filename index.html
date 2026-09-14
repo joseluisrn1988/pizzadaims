@@ -302,29 +302,55 @@
 
     <!-- ======================== MODAL DE COMBINADAS ======================== -->
     <div id="modalCombinadas" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold">Armar Pizza Combinada</h3>
-                <button id="closeCombinadas" class="text-2xl">&times;</button>
+        <!-- El modal ahora ocupa el 90% del alto con header y footer fijos -->
+        <div class="modal-content !p-0 overflow-hidden flex flex-col h-[90vh] md:h-[80vh]">
+            
+            <!-- Header Fijo -->
+            <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-white sticky top-0 z-10">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-dark">Pizza Combinada</h3>
+                    <p class="text-xs text-gray-500 font-medium mt-1">Elige tu tamaño y de 2 a 4 especialidades</p>
+                </div>
+                <button id="closeCombinadas" class="text-3xl text-gray-400 hover:text-red-daims transition w-10 h-10 flex justify-center items-center">&times;</button>
             </div>
-            <p class="text-sm text-gray-600 mb-3">Elige el tamaño y hasta 4 especialidades</p>
-            <!-- Tamaño -->
-            <div class="mb-3">
-                <label class="font-semibold block mb-1">Tamaño:</label>
-                <div id="combinadasSizeOptions" class="flex flex-wrap gap-2">
-                    <!-- generado -->
+            
+            <!-- Contenido scrolleable -->
+            <div class="p-5 overflow-y-auto flex-1 bg-gray-50 no-scrollbar">
+                
+                <!-- Paso 1: Tamaño -->
+                <div class="mb-8">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="bg-red-daims text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                        <h4 class="font-bold text-gray-dark text-lg">Elige el tamaño</h4>
+                    </div>
+                    <div id="combinadasSizeOptions" class="grid grid-cols-2 gap-3">
+                        <!-- Opciones inyectadas por JS -->
+                    </div>
+                </div>
+                
+                <!-- Paso 2: Especialidades -->
+                <div class="mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-red-daims text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                            <h4 class="font-bold text-gray-dark text-lg">Especialidades</h4>
+                        </div>
+                        <span id="combinadasCounter" class="text-xs font-bold bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full transition-colors">0 / 4</span>
+                    </div>
+                    <p class="text-[11px] text-gray-500 mb-4 bg-gray-200/50 p-2 rounded-lg border border-gray-200">2 especialidades (precio base). 3 especialidades (+$20). 4 especialidades (+$40).</p>
+                    <div id="combinadasSpecialties" class="flex flex-col gap-2">
+                        <!-- Especialidades inyectadas por JS -->
+                    </div>
                 </div>
             </div>
-            <!-- Selección de especialidades (máximo 4) -->
-            <div class="mb-3">
-                <label class="font-semibold block mb-1">Especialidades (2 a 4):</label>
-                <div id="combinadasSpecialties" class="grid grid-cols-2 gap-2">
-                    <!-- generado -->
-                </div>
-                <p id="combinadasCounter" class="text-sm text-gray-500 mt-1">Seleccionados: 0</p>
-                <p id="combinadasPriceNote" class="text-sm text-red-600 mt-1"></p>
+
+            <!-- Footer Fijo -->
+            <div class="p-4 border-t border-gray-200 bg-white sticky bottom-0 z-10 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+                <div id="combinadasPriceNote" class="text-center text-sm font-bold text-red-daims mb-2 hidden transition-all"></div>
+                <button id="combinadasAddToCart" class="w-full bg-red-daims hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition flex justify-center items-center gap-2 opacity-50 cursor-not-allowed" disabled>
+                    <i class="fas fa-cart-plus"></i> Agregar al pedido <span id="combinadasBtnPrice"></span>
+                </button>
             </div>
-            <button id="combinadasAddToCart" class="w-full bg-red-daims hover:bg-red-700 text-white font-bold py-3 rounded-xl transition">Agregar combinada al carrito</button>
         </div>
     </div>
 
@@ -822,7 +848,7 @@
         });
 
         // ========================================================================
-        // MODAL DE COMBINADAS
+        // MODAL DE COMBINADAS (UX/UI MEJORADO)
         // ========================================================================
         let combinadasSeleccion = [];
         let combinadasTamanio = null;
@@ -830,129 +856,199 @@
         function abrirModalCombinadas() {
             combinadasSeleccion = [];
             combinadasTamanio = null;
-            document.getElementById('combinadasSpecialties').innerHTML = '';
-            document.getElementById('combinadasCounter').textContent = 'Seleccionados: 0';
-            document.getElementById('combinadasPriceNote').textContent = '';
-            // Opciones de tamaño
+            
+            // 1. Resetear Interfaz
+            document.getElementById('combinadasCounter').textContent = '0 / 4';
+            document.getElementById('combinadasCounter').className = 'text-xs font-bold bg-gray-200 text-gray-700 px-3 py-1.5 rounded-full transition-colors';
+            document.getElementById('combinadasPriceNote').classList.add('hidden');
+            document.getElementById('combinadasBtnPrice').textContent = '';
+            
+            const btnAdd = document.getElementById('combinadasAddToCart');
+            btnAdd.disabled = true;
+            btnAdd.classList.add('opacity-50', 'cursor-not-allowed');
+
+            // 2. Renderizar Tamaños
             const sizeContainer = document.getElementById('combinadasSizeOptions');
-            let html = '';
+            let htmlSizes = '';
+            const sample = PRODUCTOS.find(p => p.tipo === 'pizza' && p.categoria === 'especiales');
+            
             TAMANIOS_DISPONIBLES.forEach(t => {
-                const label = TAMANIOS_LABEL[t];
-                // Tomamos el precio de la primera pizza especial (ej. Carnes Frias) para mostrar
-                const sample = PRODUCTOS.find(p => p.tipo === 'pizza' && p.categoria === 'especiales');
+                const labelCompleto = TAMANIOS_LABEL[t];
+                const titulo = labelCompleto.split(' ')[0]; // Extrae "Chica", "Mediana", etc.
+                const subtitulo = labelCompleto.includes('(') ? labelCompleto.substring(labelCompleto.indexOf('(')) : ''; // Extrae "(8 rebanadas)"
                 const precio = sample ? sample.precios[t] : 0;
-                html += `
-                    <button class="size-option-comb" data-tamanio="${t}" style="background:#f3f4f6; padding:0.5rem 1rem; border-radius:50px; border:2px solid transparent; font-weight:500;">
-                        ${label} ${formatPrice(precio)}
-                    </button>
+                
+                htmlSizes += `
+                    <div class="size-option-comb bg-white border-2 border-gray-200 rounded-xl p-3 cursor-pointer transition hover:border-red-300 flex flex-col items-center text-center shadow-sm" data-tamanio="${t}">
+                        <span class="font-black text-gray-800 text-base mb-0.5">${titulo}</span>
+                        <span class="text-[10px] text-gray-500 mb-2 font-medium">${subtitulo}</span>
+                        <span class="text-sm font-bold text-red-daims">${formatPrice(precio)}</span>
+                    </div>
                 `;
             });
-            sizeContainer.innerHTML = html;
-            // Seleccionar primero
-            const first = sizeContainer.querySelector('.size-option-comb');
-            if (first) {
-                first.style.borderColor = '#be2022';
-                combinadasTamanio = first.dataset.tamanio;
-            }
-            // Eventos de tamaño
+            sizeContainer.innerHTML = htmlSizes;
+
+            // 3. Renderizar Especialidades (Formato lista con checkbox)
+            const especialidades = PRODUCTOS.filter(p => p.tipo === 'pizza' && (p.categoria === 'especiales' || p.categoria === 'especialidades'));
+            const specialtiesContainer = document.getElementById('combinadasSpecialties');
+            let htmlSpecialties = '';
+            
+            especialidades.forEach(p => {
+                htmlSpecialties += `
+                    <div class="specialty-btn bg-white border-2 border-gray-200 rounded-xl p-3 cursor-pointer transition flex items-center justify-between shadow-sm hover:bg-gray-50" data-id="${p.id}">
+                        <div class="flex-1 pr-3">
+                            <div class="font-bold text-gray-800 text-sm">${p.nombre}</div>
+                            <div class="text-[10px] text-gray-500 line-clamp-1 mt-0.5 leading-tight">${p.ingredientes}</div>
+                        </div>
+                        <div class="checkbox-indicator w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-white transition flex-shrink-0">
+                            <i class="fas fa-check text-xs opacity-0 transition-opacity"></i>
+                        </div>
+                    </div>
+                `;
+            });
+            specialtiesContainer.innerHTML = htmlSpecialties;
+
+            // 4. Seleccionar el primer tamaño automáticamente
+            const firstSize = sizeContainer.querySelector('.size-option-comb');
+            if (firstSize) seleccionarTamanioCombinada(firstSize);
+
+            // 5. Asignar Eventos - Tamaños
             sizeContainer.querySelectorAll('.size-option-comb').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    sizeContainer.querySelectorAll('.size-option-comb').forEach(b => b.style.borderColor = 'transparent');
-                    this.style.borderColor = '#be2022';
-                    combinadasTamanio = this.dataset.tamanio;
-                    actualizarNotaCombinadas();
+                    seleccionarTamanioCombinada(this);
                 });
             });
 
-            // Lista de especialidades (todas las pizzas con categoria 'especiales' y 'especialidades')
-            const especialidades = PRODUCTOS.filter(p => p.tipo === 'pizza' && (p.categoria === 'especiales' || p.categoria === 'especialidades'));
-            const container = document.getElementById('combinadasSpecialties');
-            let html2 = '';
-            especialidades.forEach(p => {
-                html2 += `
-                    <button class="specialty-btn" data-id="${p.id}" style="background:#f3f4f6; border-radius:0.75rem; padding:0.5rem; border:2px solid transparent; font-size:0.9rem;">
-                        ${p.nombre}
-                    </button>
-                `;
-            });
-            container.innerHTML = html2;
-            // Eventos de selección
-            container.querySelectorAll('.specialty-btn').forEach(btn => {
+            // 6. Asignar Eventos - Especialidades
+            specialtiesContainer.querySelectorAll('.specialty-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const id = this.dataset.id;
                     const idx = combinadasSeleccion.indexOf(id);
+                    const indicator = this.querySelector('.checkbox-indicator');
+                    const checkIcon = this.querySelector('.fa-check');
+
                     if (idx >= 0) {
+                        // Deseleccionar
                         combinadasSeleccion.splice(idx, 1);
-                        this.style.borderColor = 'transparent';
+                        this.classList.remove('border-red-daims', 'bg-red-50/30');
+                        this.classList.add('border-gray-200', 'bg-white');
+                        indicator.classList.remove('bg-red-daims', 'border-red-daims');
+                        indicator.classList.add('border-gray-300');
+                        checkIcon.classList.add('opacity-0');
                     } else {
-                        if (combinadasSeleccion.length >= 4) {
-                            alert('Máximo 4 especialidades');
-                            return;
-                        }
+                        // Seleccionar
+                        if (combinadasSeleccion.length >= 4) return; // Limitar a 4
+                        
                         combinadasSeleccion.push(id);
-                        this.style.borderColor = '#be2022';
+                        this.classList.remove('border-gray-200', 'bg-white');
+                        this.classList.add('border-red-daims', 'bg-red-50/30');
+                        indicator.classList.remove('border-gray-300');
+                        indicator.classList.add('bg-red-daims', 'border-red-daims');
+                        checkIcon.classList.remove('opacity-0');
                     }
-                    document.getElementById('combinadasCounter').textContent = `Seleccionados: ${combinadasSeleccion.length}`;
+                    
+                    // Actualizar UI del contador
+                    const counterEl = document.getElementById('combinadasCounter');
+                    counterEl.textContent = `${combinadasSeleccion.length} / 4`;
+                    if (combinadasSeleccion.length === 4) {
+                        counterEl.classList.add('bg-red-daims', 'text-white');
+                        counterEl.classList.remove('bg-gray-200', 'text-gray-700');
+                    } else {
+                        counterEl.classList.remove('bg-red-daims', 'text-white');
+                        counterEl.classList.add('bg-gray-200', 'text-gray-700');
+                    }
+
                     actualizarNotaCombinadas();
                 });
             });
 
             document.getElementById('modalCombinadas').classList.add('active');
+            document.body.style.overflow = 'hidden'; // Evitar scroll del fondo en móviles
+        }
+
+        function seleccionarTamanioCombinada(elemento) {
+            document.querySelectorAll('.size-option-comb').forEach(b => {
+                b.classList.remove('border-red-daims', 'bg-red-50');
+                b.classList.add('border-gray-200', 'bg-white');
+            });
+            elemento.classList.remove('border-gray-200', 'bg-white');
+            elemento.classList.add('border-red-daims', 'bg-red-50');
+            combinadasTamanio = elemento.dataset.tamanio;
+            actualizarNotaCombinadas();
         }
 
         function actualizarNotaCombinadas() {
-            const nota = document.getElementById('combinadasPriceNote');
             const count = combinadasSeleccion.length;
-            let extra = 0;
-            if (count === 3) extra = 20;
-            else if (count >= 4) extra = 40;
+            const btnAdd = document.getElementById('combinadasAddToCart');
+            const btnPrice = document.getElementById('combinadasBtnPrice');
+            const note = document.getElementById('combinadasPriceNote');
+
             if (count >= 2 && combinadasTamanio) {
                 const sample = PRODUCTOS.find(p => p.tipo === 'pizza' && p.categoria === 'especiales');
                 const base = sample ? sample.precios[combinadasTamanio] : 0;
+                let extra = 0;
+                if (count === 3) extra = 20;
+                if (count >= 4) extra = 40;
+                
                 const total = base + extra;
-                nota.textContent = `Precio base ${formatPrice(base)} + ${extra > 0 ? 'extra $'+extra : ''} = ${formatPrice(total)}`;
+                
+                btnPrice.textContent = `- ${formatPrice(total)}`;
+                btnAdd.disabled = false;
+                btnAdd.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                if (extra > 0) {
+                    note.textContent = `Cargo extra de +$${extra} aplicado`;
+                    note.classList.remove('hidden');
+                } else {
+                    note.classList.add('hidden');
+                }
             } else {
-                nota.textContent = '';
+                btnPrice.textContent = '';
+                btnAdd.disabled = true;
+                btnAdd.classList.add('opacity-50', 'cursor-not-allowed');
+                note.classList.add('hidden');
             }
         }
 
+        // Eventos para cerrar y agregar
         document.getElementById('closeCombinadas').addEventListener('click', () => {
             document.getElementById('modalCombinadas').classList.remove('active');
+            document.body.style.overflow = '';
         });
+
         document.getElementById('modalCombinadas').addEventListener('click', function(e) {
-            if (e.target === this) this.classList.remove('active');
+            if (e.target === this) {
+                this.classList.remove('active');
+                document.body.style.overflow = '';
+            }
         });
 
         document.getElementById('combinadasAddToCart').addEventListener('click', function() {
-            if (combinadasSeleccion.length < 2) {
-                alert('Selecciona al menos 2 especialidades');
-                return;
-            }
-            if (!combinadasTamanio) {
-                alert('Selecciona un tamaño');
-                return;
-            }
-            // Calcular precio
+            if (combinadasSeleccion.length < 2 || !combinadasTamanio) return;
+            
             const sample = PRODUCTOS.find(p => p.tipo === 'pizza' && p.categoria === 'especiales');
             let base = sample ? sample.precios[combinadasTamanio] : 0;
             let extra = 0;
             if (combinadasSeleccion.length === 3) extra = 20;
-            else if (combinadasSeleccion.length >= 4) extra = 40;
+            if (combinadasSeleccion.length >= 4) extra = 40;
             const precioUnitario = base + extra;
-            // Crear un item combinado en el carrito
+            
             const nombres = combinadasSeleccion.map(id => findProduct(id)?.nombre || '').join(', ');
             carrito.push({
                 productId: 'combinada_' + Date.now(),
-                nombre: `Combinada (${nombres})`,
+                nombre: `Mitades/Combinada`,
                 tamanio: combinadasTamanio,
                 precioUnitario: precioUnitario,
                 cantidad: 1,
-                ingredientes: `Especialidades: ${nombres}`,
+                ingredientes: `(${nombres})`,
                 esCombinada: true,
             });
+            
             actualizarCarritoUI();
             document.getElementById('modalCombinadas').classList.remove('active');
+            document.body.style.overflow = '';
         });
+
 
         // ========================================================================
         // NAVEGACIÓN POR PESTAÑAS
